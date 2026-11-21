@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CivicPulse Enterprise | Municipal AI Command & Grievance Redressal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CivicPulse Enterprise | Autonomous Municipal AI Command</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,19 +16,26 @@
             brand: {
               50: '#eef2ff',
               100: '#e0e7ff',
-              200: '#c7d2fe',
               500: '#6366f1',
               600: '#4f46e5',
               700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
             },
-            civic: {
-              navy: '#090e1a',
-              card: '#ffffff',
-              border: '#e2e8f0',
-              accent: '#06b6d4'
+            neo: {
+              ink: '#090e1a',
+              border: '#0f172a',
+              cyan: '#06b6d4',
+              amber: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e'
             }
+          },
+          boxShadow: {
+            'neo-sm': '2px 2px 0px 0px #0f172a',
+            'neo-md': '4px 4px 0px 0px #0f172a',
+            'neo-lg': '6px 6px 0px 0px #0f172a',
+            'neo-xl': '8px 8px 0px 0px #0f172a',
+            'neo-cyan': '4px 4px 0px 0px #06b6d4',
+            'neo-indigo': '4px 4px 0px 0px #4f46e5',
           }
         }
       }
@@ -41,333 +48,311 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Leaflet CSS & JS for Spatial Explorer -->
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Custom Stylesheet -->
+  <!-- Neo-Glassmorphism Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col pb-20 md:pb-6 antialiased selection:bg-indigo-500 selection:text-white">
 
-  <!-- ================= TOP COMMAND BAR (EXECUTIVE NAV) ================= -->
-  <header class="bg-[#090e1a] border-b border-slate-800 text-white sticky top-0 z-40 shadow-md">
+  <!-- ================= TOP HEADER (NEO-GLASS DARK) ================= -->
+  <header class="bg-[#090e1a]/95 backdrop-blur-xl border-b-2 border-slate-900 sticky top-0 z-40 shadow-neo-md text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
         
-        <!-- Brand & Municipal Seal -->
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-2 ring-indigo-400/20">
+        <!-- Brand & Municipal Shield -->
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center border-2 border-white shadow-neo-sm">
             <i data-lucide="shield-alert" class="w-7 h-7 text-white"></i>
           </div>
           <div>
-            <div class="flex items-center space-x-2.5">
+            <div class="flex items-center space-x-2">
               <span class="font-black text-xl tracking-tight text-white">CIVICPULSE</span>
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">Enterprise Command</span>
+              <span class="text-[10px] sm:text-xs font-black uppercase px-2 py-0.5 rounded-md bg-cyan-400 text-slate-900 border border-slate-900 shadow-[1.5px_1.5px_0px_0px_#fff]">v2.5 Pro</span>
             </div>
-            <p class="text-xs text-slate-400 font-medium">Autonomous Municipal AI &amp; Spatial Grievance Redressal</p>
+            <p class="text-xs text-slate-300 font-bold hidden sm:block">Autonomous Municipal AI &amp; Spatial Operations</p>
           </div>
         </div>
 
-        <!-- Navigation Tabs Bar -->
-        <nav class="hidden md:flex items-center space-x-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
-          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-tab active flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-white bg-slate-800 shadow-xs">
+        <!-- Desktop Navigation Tabs (Neo-Brutalist Pill Dock) -->
+        <nav class="hidden md:flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-2xl border-2 border-slate-800">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="neo-nav-tab active">
             <i data-lucide="layout-dashboard" class="w-4 h-4 text-cyan-400"></i>
             <span>Command Center</span>
           </button>
-          <button onclick="switchTab('map')" id="tab-btn-map" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <button onclick="switchTab('map')" id="tab-btn-map" class="neo-nav-tab">
             <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
-            <span>Spatial GIS Map</span>
+            <span>Spatial GIS</span>
           </button>
-          <button onclick="switchTab('report')" id="tab-btn-report" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <button onclick="switchTab('report')" id="tab-btn-report" class="neo-nav-tab">
             <i data-lucide="file-plus-2" class="w-4 h-4 text-amber-400"></i>
             <span>File Grievance</span>
           </button>
-          <button onclick="switchTab('tracker')" id="tab-btn-tracker" class="nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <button onclick="switchTab('tracker')" id="tab-btn-tracker" class="neo-nav-tab">
             <i data-lucide="list-checks" class="w-4 h-4 text-indigo-400"></i>
             <span>Public Tracker</span>
           </button>
         </nav>
 
-        <!-- Right Controls & Officer Portal -->
-        <div class="flex items-center space-x-3.5">
-          <!-- Gemini AI Live Telemetry Pill -->
-          <div id="ai-status-badge" class="hidden lg:flex items-center space-x-2.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs shadow-xs">
+        <!-- Right Controls (AI Pulse + Officer Login) -->
+        <div class="flex items-center space-x-3">
+          <!-- Gemini Telemetry Badge -->
+          <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900 border-2 border-slate-800 text-xs font-bold shadow-neo-sm">
             <span class="relative flex h-2.5 w-2.5">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span id="ai-status-text" class="text-slate-200 font-medium tracking-wide">Gemini 2.5 Active</span>
+            <span id="ai-status-text" class="text-slate-200 font-mono">Gemini Active</span>
           </div>
 
-          <!-- Officer Access Button -->
-          <div id="auth-section">
-            <button onclick="openAdminModal()" id="btn-officer-auth" class="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition transform active:scale-95">
-              <i data-lucide="lock" class="w-4 h-4"></i>
-              <span id="officer-btn-text">Officer Portal</span>
-            </button>
-          </div>
+          <!-- Officer Access Trigger -->
+          <button onclick="openAdminModal()" id="btn-officer-auth" class="neo-btn neo-btn-primary px-3.5 sm:px-4 py-2 text-xs sm:text-sm">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span id="officer-btn-text">Officer Portal</span>
+          </button>
         </div>
 
       </div>
     </div>
-
-    <!-- Mobile Nav Bar -->
-    <div class="md:hidden flex items-center justify-around bg-slate-900 border-t border-slate-800 py-2.5 px-3">
-      <button onclick="switchTab('dashboard')" class="flex flex-col items-center text-xs text-slate-300 font-semibold py-1">
-        <i data-lucide="layout-dashboard" class="w-5 h-5 mb-1 text-cyan-400"></i> Dashboard
-      </button>
-      <button onclick="switchTab('map')" class="flex flex-col items-center text-xs text-slate-300 font-semibold py-1">
-        <i data-lucide="map-pin" class="w-5 h-5 mb-1 text-emerald-400"></i> Spatial GIS
-      </button>
-      <button onclick="switchTab('report')" class="flex flex-col items-center text-xs text-slate-300 font-semibold py-1">
-        <i data-lucide="file-plus-2" class="w-5 h-5 mb-1 text-amber-400"></i> File Issue
-      </button>
-      <button onclick="switchTab('tracker')" class="flex flex-col items-center text-xs text-slate-300 font-semibold py-1">
-        <i data-lucide="list-checks" class="w-5 h-5 mb-1 text-indigo-400"></i> Tracker
-      </button>
-    </div>
   </header>
 
-  <!-- ================= SUB-HEADER TELEMETRY BAR ================= -->
-  <div class="bg-white border-b border-slate-200 px-4 py-3 sm:px-6 lg:px-8 text-sm text-slate-600 shadow-xs">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-          <i data-lucide="radio" class="w-3.5 h-3.5 mr-1.5 text-indigo-600 animate-pulse"></i> LIVE DISPATCH
+  <!-- ================= SUB-HEADER TELEMETRY TICKER ================= -->
+  <div class="bg-white/90 backdrop-blur-md border-b-2 border-slate-900 px-4 py-2.5 sm:px-6 lg:px-8 shadow-xs">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-800">
+      <div class="flex items-center space-x-2.5">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-black bg-amber-300 text-slate-950 border border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0f172a]">
+          <i data-lucide="radio" class="w-3.5 h-3.5 mr-1 text-slate-950 animate-pulse"></i> LIVE DISPATCH
         </span>
-        <span class="font-medium text-slate-700 text-xs sm:text-sm">Autonomous municipal AI triaging urban infrastructure across 8 Wards &amp; 10 Departments.</span>
+        <span class="text-slate-700 truncate max-w-[280px] sm:max-w-none">Autonomous municipal AI triaging urban hazards across 8 Wards.</span>
       </div>
-      <div class="flex items-center space-x-5 text-xs sm:text-sm">
+      <div class="flex items-center space-x-4">
         <span class="text-slate-500 flex items-center space-x-1.5">
-          <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i>
-          <span>System Clock:</span>
-          <span id="system-time" class="font-mono text-slate-900 font-semibold">--:--:--</span>
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-700"></i>
+          <span id="system-time" class="font-mono text-slate-950 font-extrabold">--:--:--</span>
         </span>
-        <a href="tel:1913" class="hidden sm:inline-flex items-center space-x-1 text-rose-600 hover:text-rose-700 font-bold">
-          <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
-          <span>Helpline: 1913 (24x7)</span>
-        </a>
-        <button onclick="refreshData()" title="Force Sync Data" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1.5 transition">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-          <span>Sync Data</span>
+        <button onclick="refreshData()" class="text-indigo-600 hover:text-indigo-800 font-extrabold flex items-center space-x-1 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Sync</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================= MAIN CONTENT CONTAINER ================= -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
     <!-- ================= TAB 1: EXECUTIVE COMMAND DASHBOARD ================= -->
-    <section id="view-dashboard" class="space-y-8">
+    <section id="view-dashboard" class="space-y-6 sm:space-y-8">
       
-      <!-- Top Action Bar -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200">
+      <!-- Top Title & Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b-2 border-slate-900/20">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Municipal Command &amp; Control</h1>
-          <p class="text-sm sm:text-base text-slate-500 mt-1">Real-time civic triage telemetry, engineering squad allocation, and SLA compliance monitoring.</p>
+          <div class="flex items-center space-x-2">
+            <span class="neo-badge bg-indigo-100 text-indigo-900">MUNICIPAL OPERATIONS</span>
+            <span class="text-xs font-mono text-slate-500 font-bold">Zonal Directorate</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight mt-1">Executive Command Center</h1>
+          <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">Real-time civic triage telemetry, engineering squad allocation, and SLA compliance monitoring.</p>
         </div>
         <div class="flex items-center space-x-3">
-          <button onclick="exportCSV()" class="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold shadow-xs transition">
+          <button onclick="exportCSV()" class="neo-btn neo-btn-white px-3.5 sm:px-4 py-2 text-xs sm:text-sm">
             <i data-lucide="download" class="w-4 h-4 text-indigo-600"></i>
-            <span>Export Official CSV</span>
+            <span>Export CSV</span>
           </button>
-          <button onclick="seedDatabase()" class="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold shadow-md transition" title="Reset sample test grievances">
-            <i data-lucide="database-zap" class="w-4 h-4 text-amber-400"></i>
+          <button onclick="seedDatabase()" class="neo-btn neo-btn-cyan px-3.5 sm:px-4 py-2 text-xs sm:text-sm" title="Reset sample test grievances">
+            <i data-lucide="database-zap" class="w-4 h-4 text-slate-950"></i>
             <span>Demo Data Seeder</span>
           </button>
         </div>
       </div>
 
-      <!-- SLA Breached Alert Banner -->
-      <div id="sla-hazard-alert" class="hidden p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 shadow-sm flex items-start space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow">
-          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+      <!-- Urgent SLA Alert Banner -->
+      <div id="sla-hazard-alert" class="hidden p-4 sm:p-5 rounded-2xl bg-rose-50 border-2 border-rose-900 shadow-neo-md text-rose-950 flex items-start space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 border-2 border-slate-900 shadow-neo-sm">
+          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
         </div>
-        <div class="flex-1 text-sm sm:text-base">
-          <span class="font-extrabold text-rose-950">High-Urgency Municipal Alert:</span>
-          <span id="sla-hazard-count">2 critical hazards</span> approaching or exceeding SLA response boundaries. Rapid response teams have been notified.
+        <div class="flex-1 text-xs sm:text-sm font-bold">
+          <span class="font-black text-rose-950 uppercase tracking-wide">Emergency SLA Alert:</span>
+          <span id="sla-hazard-count">2 critical hazards</span> approaching or exceeding SLA response limits. Inspect prioritized triage rows below.
         </div>
       </div>
 
-      <!-- Elevated KPI Cards Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Neubrutalist KPI Metric Cards Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         
-        <!-- Total Complaints -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover-card">
+        <!-- Total Grievances -->
+        <div class="neo-glass p-5 sm:p-6 bg-white/90">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Complaints</span>
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-              <i data-lucide="inbox" class="w-5 h-5"></i>
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500">Total Grievances</span>
+            <div class="w-9 h-9 rounded-xl bg-indigo-100 border-2 border-slate-900 flex items-center justify-center text-indigo-700 shadow-neo-sm">
+              <i data-lucide="inbox" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-3 flex items-baseline space-x-3">
-            <span id="kpi-total" class="text-4xl font-extrabold text-slate-900">--</span>
-            <span class="text-xs font-bold text-emerald-600 flex items-center">
-              <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i> +14% vs last wk
+          <div class="mt-3 flex items-baseline space-x-2">
+            <span id="kpi-total" class="text-3xl sm:text-4xl font-black text-slate-950 font-mono">--</span>
+            <span class="text-[11px] sm:text-xs font-black text-emerald-600 flex items-center">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-0.5"></i> +14%
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-2">Aggregated across all 8 municipal wards</p>
+          <p class="text-[11px] sm:text-xs text-slate-500 font-bold mt-1.5">Across all 8 urban wards</p>
         </div>
 
-        <!-- In-Field / Active Crews -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover-card">
+        <!-- In-Field Active Crews -->
+        <div class="neo-glass p-5 sm:p-6 bg-white/90">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Crews</span>
-            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-              <i data-lucide="truck" class="w-5 h-5"></i>
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500">Active Crews</span>
+            <div class="w-9 h-9 rounded-xl bg-amber-100 border-2 border-slate-900 flex items-center justify-center text-amber-700 shadow-neo-sm">
+              <i data-lucide="truck" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-3 flex items-baseline space-x-3">
-            <span id="kpi-active" class="text-4xl font-extrabold text-amber-600">--</span>
-            <span class="text-xs font-semibold text-slate-500">Dispatched / Working</span>
+          <div class="mt-3 flex items-baseline space-x-2">
+            <span id="kpi-active" class="text-3xl sm:text-4xl font-black text-amber-600 font-mono">--</span>
+            <span class="text-[11px] sm:text-xs font-black text-slate-500">In Field</span>
           </div>
-          <p class="text-xs text-slate-400 mt-2">Field engineering units actively on site</p>
+          <p class="text-[11px] sm:text-xs text-slate-500 font-bold mt-1.5">Active engineering repair units</p>
         </div>
 
         <!-- Resolution Rate -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover-card">
+        <div class="neo-glass p-5 sm:p-6 bg-white/90">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Resolution Rate</span>
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500">Resolution Rate</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 border-2 border-slate-900 flex items-center justify-center text-emerald-700 shadow-neo-sm">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-3 flex items-baseline space-x-3">
-            <span id="kpi-rate" class="text-4xl font-extrabold text-emerald-600">--%</span>
-            <span id="kpi-resolved-count" class="text-xs font-bold text-slate-500">(-- resolved)</span>
+          <div class="mt-3 flex items-baseline space-x-2">
+            <span id="kpi-rate" class="text-3xl sm:text-4xl font-black text-emerald-600 font-mono">--%</span>
+            <span id="kpi-resolved-count" class="text-[11px] sm:text-xs font-black text-slate-500">(--)</span>
           </div>
-          <p class="text-xs text-slate-400 mt-2">Verified with certified photographic evidence</p>
+          <p class="text-[11px] sm:text-xs text-slate-500 font-bold mt-1.5">Verified with photo evidence</p>
         </div>
 
         <!-- SLA Compliance -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover-card">
+        <div class="neo-glass p-5 sm:p-6 bg-white/90">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">SLA Compliance</span>
-            <div class="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600">
-              <i data-lucide="gauge" class="w-5 h-5"></i>
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500">SLA Compliance</span>
+            <div class="w-9 h-9 rounded-xl bg-cyan-100 border-2 border-slate-900 flex items-center justify-center text-cyan-700 shadow-neo-sm">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-3 flex items-baseline space-x-3">
-            <span id="kpi-sla" class="text-4xl font-extrabold text-slate-900">--%</span>
-            <span class="text-xs font-bold text-emerald-600">Avg 24h</span>
+          <div class="mt-3 flex items-baseline space-x-2">
+            <span id="kpi-sla" class="text-3xl sm:text-4xl font-black text-slate-950 font-mono">--%</span>
+            <span class="text-[11px] sm:text-xs font-black text-emerald-600">Avg 24h</span>
           </div>
-          <p class="text-xs text-slate-400 mt-2">Operating within standard municipal charter</p>
+          <p class="text-[11px] sm:text-xs text-slate-500 font-bold mt-1.5">Within municipal charter</p>
         </div>
 
       </div>
 
       <!-- Charts Section: Department Workload & Category Breakdown -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         
         <!-- Department Workload Bar Chart -->
-        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
-          <div class="flex items-center justify-between mb-6">
+        <div class="lg:col-span-2 neo-card p-5 sm:p-6 bg-white">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h3 class="text-base font-bold text-slate-900">Department Workload Distribution</h3>
-              <p class="text-xs text-slate-500">Backlog and engineering task load by municipal authority</p>
+              <h3 class="text-sm sm:text-base font-black text-slate-950">Department Workload Distribution</h3>
+              <p class="text-xs text-slate-500 font-bold">Backlog and engineering task load by municipal authority</p>
             </div>
-            <span class="text-xs font-mono font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100">Live Telemetry</span>
+            <span class="neo-badge bg-indigo-50 text-indigo-800">Live Telemetry</span>
           </div>
-          <div class="h-72 relative">
+          <div class="h-64 sm:h-72 relative">
             <canvas id="chart-departments"></canvas>
           </div>
         </div>
 
         <!-- Category Donut Chart -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
-          <div class="flex items-center justify-between mb-6">
+        <div class="neo-card p-5 sm:p-6 bg-white">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h3 class="text-base font-bold text-slate-900">Grievance Taxonomy</h3>
-              <p class="text-xs text-slate-500">Classified by Gemini AI</p>
+              <h3 class="text-sm sm:text-base font-black text-slate-950">Grievance Taxonomy</h3>
+              <p class="text-xs text-slate-500 font-bold">Classified by Gemini AI</p>
             </div>
           </div>
-          <div class="h-72 relative flex items-center justify-center">
+          <div class="h-64 sm:h-72 relative flex items-center justify-center">
             <canvas id="chart-categories"></canvas>
           </div>
         </div>
 
       </div>
 
-      <!-- NEW SECTION: Active Field Units & Citizen Satisfaction Metrics -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Active Squads & Mobile Fleet Status -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         
-        <!-- Squad 1 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
-          <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+        <div class="neo-glass p-5 bg-white flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-100 border-2 border-slate-900 flex items-center justify-center text-indigo-700 shadow-neo-sm shrink-0">
             <i data-lucide="wrench" class="w-6 h-6"></i>
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <span class="text-xs font-bold text-slate-800">Squad RD-04 (Paving Van)</span>
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-black text-slate-900">Squad RD-04 (Paving Van)</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-slate-900"></span>
             </div>
-            <p class="text-xs text-slate-500 mt-0.5">Assigned: Highline Road Pothole (CR-1001)</p>
-            <span class="text-[11px] font-semibold text-indigo-600">Status: Hot-mix roller compaction</span>
+            <p class="text-xs text-slate-600 font-bold mt-0.5">Assigned: Highline Road Pothole (CR-1001)</p>
+            <span class="text-[11px] font-black text-indigo-700">Status: Hot-mix asphalt compaction</span>
           </div>
         </div>
 
-        <!-- Squad 2 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
-          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+        <div class="neo-glass p-5 bg-white flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-100 border-2 border-slate-900 flex items-center justify-center text-amber-700 shadow-neo-sm shrink-0">
             <i data-lucide="shield-alert" class="w-6 h-6"></i>
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <span class="text-xs font-bold text-slate-800">Squad FL-12 (Drainage Unit)</span>
-              <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+              <span class="text-xs font-black text-slate-900">Squad FL-12 (Drainage Unit)</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
             </div>
-            <p class="text-xs text-slate-500 mt-0.5">Assigned: School Manhole Hazard (CR-1002)</p>
-            <span class="text-[11px] font-semibold text-amber-600">Status: Cast-iron locking slab fitting</span>
+            <p class="text-xs text-slate-600 font-bold mt-0.5">Assigned: School Manhole Hazard (CR-1002)</p>
+            <span class="text-[11px] font-black text-amber-700">Status: Cast-iron locking slab fitting</span>
           </div>
         </div>
 
-        <!-- Citizen Trust Rating -->
-        <div class="bg-gradient-to-br from-indigo-900 to-slate-900 p-5 rounded-2xl text-white shadow-xs flex items-center justify-between">
+        <div class="neo-glass-dark p-5 text-white flex items-center justify-between">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Public Trust Index</span>
+            <span class="text-xs font-black uppercase tracking-wider text-cyan-300">Public Trust Index</span>
             <div class="flex items-baseline space-x-2 mt-1">
-              <span class="text-2xl font-black text-white">4.8</span>
-              <span class="text-xs text-amber-400">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+              <span class="text-3xl font-black text-white font-mono">4.8</span>
+              <span class="text-xs text-amber-400 font-black">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
             </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">94.8% First-Visit Resolution</p>
+            <p class="text-xs text-slate-300 font-bold mt-0.5">94.8% First-Visit Resolution Rate</p>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-cyan-300">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-400 border-2 border-white flex items-center justify-center text-slate-950 shadow-neo-sm">
             <i data-lucide="award" class="w-6 h-6"></i>
           </div>
         </div>
 
       </div>
 
-      <!-- Executive Grievance Management Table -->
-      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <!-- Neubrutalist Grievance Management Table -->
+      <div class="neo-card bg-white overflow-hidden">
         
-        <!-- Table Header & Controls -->
-        <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Table Controls & Search Filter -->
+        <div class="p-5 sm:p-6 border-b-2 border-slate-900 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center border-2 border-slate-900 shadow-neo-sm">
               <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-900">Municipal Triage &amp; Dispatch Queue</h3>
-              <p class="text-xs text-slate-500">Autonomous classification &amp; field squad assignments</p>
+              <h3 class="text-base sm:text-lg font-black text-slate-950">Municipal Triage &amp; Dispatch Queue</h3>
+              <p class="text-xs text-slate-500 font-bold">Autonomous AI classification &amp; field squad dispatching</p>
             </div>
-            <span id="queue-count-badge" class="ml-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">0 records</span>
+            <span id="queue-count-badge" class="neo-badge bg-indigo-100 text-indigo-900">0 records</span>
           </div>
 
-          <!-- Quick Filters -->
+          <!-- Quick Filters Bar -->
           <div class="flex flex-wrap items-center gap-2.5">
             <div class="relative">
-              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input id="tbl-search" oninput="debounceFilter()" type="text" placeholder="Search ticket, road, area..." class="pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-48 sm:w-64 transition" />
+              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input id="tbl-search" oninput="debounceFilter()" type="text" placeholder="Search ticket, road, area..." class="pl-9 pr-3 py-2 text-xs sm:text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm w-44 sm:w-60 bg-white" />
             </div>
 
-            <select id="tbl-filter-dept" onchange="renderDashboard()" class="text-xs sm:text-sm py-2 px-3 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
+            <select id="tbl-filter-dept" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
               <option value="">All Departments</option>
             </select>
 
-            <select id="tbl-filter-status" onchange="renderDashboard()" class="text-xs sm:text-sm py-2 px-3 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
+            <select id="tbl-filter-status" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
               <option value="">All Statuses</option>
               <option value="Reported">Reported</option>
               <option value="Dispatched">Dispatched</option>
@@ -375,7 +360,7 @@
               <option value="Resolved">Resolved</option>
             </select>
 
-            <select id="tbl-filter-priority" onchange="renderDashboard()" class="text-xs sm:text-sm py-2 px-3 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
+            <select id="tbl-filter-priority" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
               <option value="">All Urgencies</option>
               <option value="Critical">Critical</option>
               <option value="High">High</option>
@@ -385,10 +370,10 @@
           </div>
         </div>
 
-        <!-- Table View -->
+        <!-- Table View with Responsive Horizontal Swipe -->
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200 text-xs tracking-wider">
+          <table class="w-full text-left text-sm font-bold">
+            <thead class="bg-slate-100 text-slate-800 uppercase font-black border-b-2 border-slate-900 text-xs tracking-wider">
               <tr>
                 <th class="py-4 px-5">Ticket</th>
                 <th class="py-4 px-5">Snapshot</th>
@@ -400,7 +385,7 @@
                 <th class="py-4 px-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody id="dashboard-table-body" class="divide-y divide-slate-100 font-medium text-slate-800">
+            <tbody id="dashboard-table-body" class="divide-y-2 divide-slate-100 text-slate-900">
               <!-- Dynamically Populated -->
             </tbody>
           </table>
@@ -410,39 +395,43 @@
 
     </section>
 
-    <!-- ================= TAB 2: SPATIAL MAP & GIS PANE ================= -->
+    <!-- ================= TAB 2: SPATIAL GIS MAP ================= -->
     <section id="view-map" class="hidden space-y-6">
       
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b-2 border-slate-900/20">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Civic Spatial Explorer</h1>
-          <p class="text-sm sm:text-base text-slate-500 mt-1">Geographic information system (GIS) mapping of live grievances with severity indicators.</p>
+          <div class="flex items-center space-x-2">
+            <span class="neo-badge bg-emerald-100 text-emerald-900">GIS TELEMETRY</span>
+            <span class="text-xs font-mono text-slate-500 font-bold">Spatial Satellite Grid</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight mt-1">Civic Spatial Explorer</h1>
+          <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">Geospatial hazard mapping with real-time severity clusters and ward density telemetry.</p>
         </div>
-        <div class="flex items-center space-x-4 text-xs sm:text-sm font-semibold">
-          <span class="flex items-center space-x-1.5"><span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block ring-2 ring-red-200"></span> <span>Critical Hazard</span></span>
-          <span class="flex items-center space-x-1.5"><span class="w-3.5 h-3.5 rounded-full bg-orange-500 inline-block ring-2 ring-orange-200"></span> <span>High Urgency</span></span>
-          <span class="flex items-center space-x-1.5"><span class="w-3.5 h-3.5 rounded-full bg-sky-500 inline-block ring-2 ring-sky-200"></span> <span>Medium</span></span>
-          <span class="flex items-center space-x-1.5"><span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block ring-2 ring-emerald-200"></span> <span>Low</span></span>
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold">
+          <span class="neo-badge bg-red-100 text-red-900 border-red-900">Critical</span>
+          <span class="neo-badge bg-orange-100 text-orange-900 border-orange-900">High Urgency</span>
+          <span class="neo-badge bg-sky-100 text-sky-900 border-sky-900">Medium</span>
+          <span class="neo-badge bg-emerald-100 text-emerald-900 border-emerald-900">Low</span>
         </div>
       </div>
 
-      <!-- Split Layout: Map on Left (2/3) + Ward Hotspots & Emergency Feed on Right (1/3) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Split GIS Grid (2/3 Map + 1/3 Hotspots) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         
-        <div class="lg:col-span-8 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-          <div id="city-map" class="w-full h-[620px] rounded-xl"></div>
+        <div class="lg:col-span-8 neo-card p-3 sm:p-4 bg-white">
+          <div id="city-map" class="w-full h-[520px] sm:h-[620px] rounded-xl"></div>
         </div>
 
         <div class="lg:col-span-4 space-y-6">
           
           <!-- Ward Density Leaderboard -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
-              <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+          <div class="neo-card p-5 bg-white space-y-3">
+            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+              <h3 class="text-sm font-black text-slate-950 flex items-center space-x-2">
                 <i data-lucide="map" class="w-4 h-4 text-indigo-600"></i>
                 <span>Ward Density Hotspots</span>
               </h3>
-              <span class="text-xs text-slate-400 font-mono">8 Wards</span>
+              <span class="text-xs font-mono font-bold text-slate-500">8 Wards</span>
             </div>
             <div id="ward-hotspot-list" class="space-y-2 text-xs">
               <!-- Populated dynamically -->
@@ -450,18 +439,18 @@
           </div>
 
           <!-- Monsoon / Infrastructure Alert -->
-          <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-5 rounded-2xl border border-amber-200 text-amber-900 shadow-xs space-y-2">
-            <div class="flex items-center space-x-2 font-bold text-sm text-amber-950">
-              <i data-lucide="cloud-rain" class="w-4 h-4 text-amber-600"></i>
+          <div class="neo-glass p-5 bg-amber-50/90 border-amber-900 text-amber-950 space-y-2">
+            <div class="flex items-center space-x-2 font-black text-sm text-amber-950">
+              <i data-lucide="cloud-rain" class="w-4 h-4 text-amber-700"></i>
               <span>Monsoon Infrastructure Advisory</span>
             </div>
-            <p class="text-xs text-amber-800 leading-relaxed">High waterlogging vulnerability detected in Ward 04 &amp; Ward 27. Rapid dewatering pumps deployed on standby.</p>
+            <p class="text-xs text-amber-900 font-bold leading-relaxed">High waterlogging vulnerability detected in Ward 04 &amp; Ward 27. Rapid dewatering pumps deployed on standby.</p>
           </div>
 
           <!-- Top Critical Queue Jump -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center space-x-2">
-              <i data-lucide="flame" class="w-4 h-4 text-red-600"></i>
+          <div class="neo-card p-5 bg-white space-y-3">
+            <h3 class="text-sm font-black text-slate-950 flex items-center space-x-2">
+              <i data-lucide="flame" class="w-4 h-4 text-rose-600"></i>
               <span>Emergency Attention Required</span>
             </h3>
             <div id="gis-urgent-list" class="space-y-2.5 text-xs">
@@ -479,79 +468,78 @@
     <section id="view-report" class="hidden space-y-8">
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-8">
-          <span class="text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-4 py-1.5 rounded-full border border-indigo-100">Citizens Redressal Window</span>
-          <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">Report an Infrastructure Issue</h1>
-          <p class="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto mt-2">Every submission is automatically triaged by Google Gemini AI, classified for safety hazards, assigned a legal SLA, and routed directly to the zonal engineering squadron.</p>
+          <span class="neo-badge bg-indigo-100 text-indigo-900 mb-2">CITIZEN FIRST CHARTER</span>
+          <h1 class="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight mt-2">Report an Infrastructure Issue</h1>
+          <p class="text-slate-600 text-xs sm:text-base font-bold max-w-2xl mx-auto mt-2">Autonomous Google Gemini AI triages your report within seconds, assesses safety hazards, and dispatches the municipal squad.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           <!-- Grievance Form (7 cols) -->
-          <div class="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-200/90 shadow-sm">
+          <div class="lg:col-span-7 neo-card p-6 sm:p-8 bg-white space-y-5">
             <form id="grievance-form" onsubmit="submitGrievance(event)" class="space-y-5">
               
               <!-- Issue Title -->
               <div>
-                <label for="form-title" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Issue Title *</label>
-                <input id="form-title" oninput="updateAiPreTriage()" required maxlength="120" placeholder="e.g. Deep pothole causing skidding near bus stop" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+                <label for="form-title" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Issue Title *</label>
+                <input id="form-title" oninput="updateAiPreTriage()" required maxlength="120" placeholder="e.g. Deep crater pothole causing accidents" class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm transition bg-slate-50" />
               </div>
 
               <!-- Description -->
               <div>
-                <label for="form-desc" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Detailed Description *</label>
-                <textarea id="form-desc" oninput="updateAiPreTriage()" required rows="3" placeholder="Provide dimensions, how long it has persisted, and threats to pedestrians or transit..." class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"></textarea>
+                <label for="form-desc" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Detailed Description *</label>
+                <textarea id="form-desc" oninput="updateAiPreTriage()" required rows="3" placeholder="Provide dimensions, how long it has persisted, and hazards to pedestrians or transit..." class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm transition bg-slate-50"></textarea>
               </div>
 
               <!-- Location & Ward -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label for="form-loc" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Street / Landmark *</label>
-                  <input id="form-loc" oninput="updateAiPreTriage()" required placeholder="Opposite Metro Pillar #124" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+                  <label for="form-loc" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Street / Landmark *</label>
+                  <input id="form-loc" oninput="updateAiPreTriage()" required placeholder="Opposite Metro Pillar #124" class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm transition bg-slate-50" />
                 </div>
                 <div>
-                  <label for="form-ward" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Municipal Ward</label>
-                  <select id="form-ward" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
-                    <!-- Populated dynamically -->
+                  <label for="form-ward" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Municipal Ward</label>
+                  <select id="form-ward" class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm bg-white">
+                    <!-- Dynamic -->
                   </select>
                 </div>
               </div>
 
-              <!-- Citizen Selected Category (Optional) -->
+              <!-- Citizen Selected Category -->
               <div>
-                <label for="form-cat" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Category (Optional - AI will confirm)</label>
-                <select id="form-cat" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
+                <label for="form-cat" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Category (Optional - AI will confirm)</label>
+                <select id="form-cat" class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm bg-white">
                   <option value="">Let Gemini AI auto-classify</option>
                 </select>
               </div>
 
-              <!-- Reporter Name & Phone -->
+              <!-- Reporter Details -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label for="form-name" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Your Name</label>
-                  <input id="form-name" placeholder="Leave blank for Anonymous" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500" />
+                  <label for="form-name" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Your Name</label>
+                  <input id="form-name" placeholder="Leave blank for Anonymous" class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm bg-slate-50" />
                 </div>
                 <div>
-                  <label for="form-phone" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Contact for SMS Alerts</label>
-                  <input id="form-phone" placeholder="+91 98765-XXXXX" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500" />
+                  <label for="form-phone" class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Contact for SMS Alerts</label>
+                  <input id="form-phone" placeholder="+91 98765-XXXXX" class="w-full px-4 py-3 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm bg-slate-50" />
                 </div>
               </div>
 
-              <!-- Photo Upload with Preview -->
+              <!-- Photo Upload with Canvas Compression -->
               <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">Attach Photo Evidence (Optional)</label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-5 border-2 border-slate-300 border-dashed rounded-2xl hover:border-indigo-400 transition cursor-pointer relative bg-slate-50/60">
+                <label class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Attach Photo Evidence (Optional)</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-5 border-2 border-dashed border-slate-900 rounded-2xl hover:bg-indigo-50/50 transition cursor-pointer relative bg-slate-50">
                   <input id="form-img" type="file" accept="image/*" onchange="previewImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <div id="dropzone-placeholder" class="space-y-2 text-center">
-                    <i data-lucide="image-plus" class="mx-auto h-9 w-9 text-slate-400"></i>
-                    <div class="text-xs sm:text-sm text-slate-600 justify-center">
-                      <span class="font-bold text-indigo-600">Click to upload photo</span>
-                      <span>or drag and drop</span>
+                    <i data-lucide="image-plus" class="mx-auto h-9 w-9 text-slate-700"></i>
+                    <div class="text-xs sm:text-sm font-bold text-slate-800 justify-center">
+                      <span class="text-indigo-600 underline">Upload photo</span> or drag and drop
                     </div>
-                    <p class="text-xs text-slate-400">PNG, JPG, WebP up to 10MB (Auto-compressed via canvas)</p>
+                    <p class="text-xs text-slate-500 font-semibold">PNG, JPG up to 10MB (Auto-compressed)</p>
                   </div>
                   <div id="dropzone-preview-container" class="hidden relative">
-                    <img id="dropzone-preview" class="max-h-44 rounded-xl shadow-md object-cover" />
-                    <button type="button" onclick="clearImagePreview(event)" class="absolute -top-3 -right-3 bg-red-600 text-white rounded-full p-1.5 shadow-md hover:bg-red-700">
+                    <img id="dropzone-preview" class="max-h-48 rounded-xl border-2 border-slate-900 shadow-neo-sm object-cover" />
+                    <button type="button" onclick="clearImagePreview(event)" class="absolute -top-3 -right-3 bg-rose-600 text-white rounded-full p-1.5 border-2 border-slate-900 shadow-neo-sm hover:bg-rose-700">
                       <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                   </div>
@@ -559,60 +547,59 @@
               </div>
 
               <!-- Submit Button -->
-              <button id="btn-submit-form" type="submit" class="w-full flex items-center justify-center space-x-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold text-sm shadow-md transition transform active:scale-98">
-                <i data-lucide="send" class="w-4 h-4"></i>
+              <button id="btn-submit-form" type="submit" class="w-full neo-btn neo-btn-primary py-4 text-sm sm:text-base">
+                <i data-lucide="send" class="w-5 h-5"></i>
                 <span id="btn-submit-text">Transmit Complaint to Control Room</span>
               </button>
 
             </form>
           </div>
 
-          <!-- Live AI Pre-Triage Terminal & Citizen Charter (5 cols) -->
+          <!-- Live AI Pre-Triage Terminal (5 cols) -->
           <div class="lg:col-span-5 space-y-6">
             
-            <div class="bg-gradient-to-br from-[#090e1a] to-slate-900 p-7 rounded-3xl text-white shadow-lg border border-slate-800">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-3.5">
-                <div class="flex items-center space-x-2.5">
+            <div class="neo-glass-dark p-6 sm:p-7 text-white space-y-4">
+              <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
                   <span class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
                   </span>
-                  <span class="text-xs font-bold tracking-wider uppercase text-cyan-300">Live AI Pre-Triage Terminal</span>
+                  <span class="text-xs font-black tracking-wider uppercase text-cyan-300">Live AI Pre-Triage Terminal</span>
                 </div>
-                <span class="text-xs font-mono text-slate-400">Autonomous</span>
+                <span class="text-xs font-mono text-slate-400 font-bold">Autonomous</span>
               </div>
 
-              <div class="mt-5 space-y-4 text-sm">
+              <div class="space-y-4 text-sm">
                 <div>
-                  <span class="text-xs text-slate-400">Predicted Department:</span>
-                  <div id="ai-live-dept" class="text-base font-bold text-white mt-0.5">-- Typing to predict --</div>
+                  <span class="text-xs text-slate-400 font-bold">Predicted Department:</span>
+                  <div id="ai-live-dept" class="text-base font-black text-white mt-0.5">-- Typing to predict --</div>
                 </div>
 
                 <div>
-                  <span class="text-xs text-slate-400">Urgency Classification:</span>
-                  <div id="ai-live-priority" class="text-base font-bold text-amber-400 mt-0.5">Medium (Estimated)</div>
+                  <span class="text-xs text-slate-400 font-bold">Urgency Classification:</span>
+                  <div id="ai-live-priority" class="text-base font-black text-amber-400 mt-0.5">Medium (Estimated)</div>
                 </div>
 
                 <div>
-                  <span class="text-xs text-slate-400">Public Hazard Risk Index:</span>
-                  <div class="w-full bg-slate-800 rounded-full h-3 mt-1.5 overflow-hidden">
-                    <div id="ai-live-hazard-bar" class="bg-emerald-500 h-3 rounded-full transition-all duration-300" style="width: 35%"></div>
+                  <span class="text-xs text-slate-400 font-bold">Public Hazard Risk Index:</span>
+                  <div class="w-full bg-slate-800 rounded-full h-3.5 mt-1.5 overflow-hidden border border-slate-700">
+                    <div id="ai-live-hazard-bar" class="bg-emerald-500 h-3.5 rounded-full transition-all duration-300" style="width: 35%"></div>
                   </div>
-                  <div class="flex justify-between text-xs text-slate-400 mt-1 font-mono">
+                  <div class="flex justify-between text-xs text-slate-400 mt-1 font-mono font-bold">
                     <span>Low Hazard</span>
                     <span id="ai-live-hazard-val">35/100</span>
                     <span>Critical Alert</span>
                   </div>
                 </div>
 
-                <div class="pt-3 border-t border-slate-800">
-                  <span class="text-xs text-slate-400">Target Legal SLA:</span>
-                  <div id="ai-live-sla" class="text-sm font-mono text-slate-200 font-bold mt-0.5">48 Hours turn-around</div>
+                <div class="pt-3 border-t-2 border-slate-800">
+                  <span class="text-xs text-slate-400 font-bold">Target Legal SLA:</span>
+                  <div id="ai-live-sla" class="text-sm font-mono text-slate-200 font-black mt-0.5">48 Hours turn-around</div>
                 </div>
 
-                <!-- Duplicate Detection Box -->
-                <div id="ai-live-dup-box" class="hidden p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs">
-                  <div class="flex items-center space-x-2 font-bold mb-1">
+                <div id="ai-live-dup-box" class="hidden p-3.5 rounded-xl bg-amber-400/20 border-2 border-amber-400 text-amber-200 text-xs font-bold">
+                  <div class="flex items-center space-x-2 mb-1">
                     <i data-lucide="copy" class="w-4 h-4 text-amber-400"></i>
                     <span>Cluster Similarity Alert</span>
                   </div>
@@ -622,24 +609,24 @@
             </div>
 
             <!-- Municipal Citizen Charter Table -->
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-3">
-              <div class="flex items-center space-x-2 font-bold text-slate-900 text-sm">
-                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            <div class="neo-card p-6 bg-white space-y-3">
+              <div class="flex items-center space-x-2 font-black text-slate-900 text-sm">
+                <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600"></i>
                 <span>Municipal SLA Charter</span>
               </div>
-              <p class="text-xs text-slate-500">Every ticket is legally bound by the Municipal Citizens Charter timelines:</p>
-              <div class="space-y-1.5 text-xs">
-                <div class="flex justify-between p-2 rounded-lg bg-rose-50 text-rose-800 font-medium">
-                  <span>Critical (Live wires, open pit)</span>
-                  <span class="font-bold font-mono">24 Hours</span>
+              <p class="text-xs text-slate-600 font-bold">Every grievance is legally bound by Citizen Charter turnaround limits:</p>
+              <div class="space-y-2 text-xs font-bold">
+                <div class="flex justify-between p-2.5 rounded-xl bg-rose-100 text-rose-950 border border-slate-900 shadow-neo-sm">
+                  <span>Critical (Live wire, open pit)</span>
+                  <span class="font-black font-mono">24 Hours</span>
                 </div>
-                <div class="flex justify-between p-2 rounded-lg bg-orange-50 text-orange-800 font-medium">
-                  <span>High (Pothole crater, water burst)</span>
-                  <span class="font-bold font-mono">48 Hours</span>
+                <div class="flex justify-between p-2.5 rounded-xl bg-orange-100 text-orange-950 border border-slate-900 shadow-neo-sm">
+                  <span>High (Crater, water burst)</span>
+                  <span class="font-black font-mono">48 Hours</span>
                 </div>
-                <div class="flex justify-between p-2 rounded-lg bg-sky-50 text-sky-800 font-medium">
-                  <span>Medium (Streetlight, bin cleanup)</span>
-                  <span class="font-bold font-mono">120 Hours</span>
+                <div class="flex justify-between p-2.5 rounded-xl bg-sky-100 text-sky-950 border border-slate-900 shadow-neo-sm">
+                  <span>Medium (Streetlight, trash)</span>
+                  <span class="font-black font-mono">120 Hours</span>
                 </div>
               </div>
             </div>
@@ -650,37 +637,41 @@
       </div>
     </section>
 
-    <!-- ================= TAB 4: PUBLIC TRACKER & FEED ================= -->
+    <!-- ================= TAB 4: PUBLIC TRACKER ================= -->
     <section id="view-tracker" class="hidden space-y-8">
       
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b-2 border-slate-900/20">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Public Grievance Tracker</h1>
-          <p class="text-sm sm:text-base text-slate-500 mt-1">Search by Ticket ID or browse community grievances and upvote issues in your ward.</p>
+          <div class="flex items-center space-x-2">
+            <span class="neo-badge bg-cyan-100 text-cyan-900">CITIZEN TRANSPARENCY</span>
+            <span class="text-xs font-mono text-slate-500 font-bold">Public Ledger</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight mt-1">Public Grievance Tracker</h1>
+          <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">Search by Ticket ID or browse community grievances and upvote issues in your ward.</p>
         </div>
 
         <!-- Search Ticket ID Direct -->
         <div class="flex items-center space-x-2">
-          <input id="direct-ticket-input" type="text" placeholder="Enter Ticket (e.g. CR-1002)" class="px-4 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 font-mono font-bold" />
-          <button onclick="lookupDirectTicket()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow transition">
+          <input id="direct-ticket-input" type="text" placeholder="Ticket ID (e.g. CR-1002)" class="px-4 py-2.5 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono shadow-neo-sm bg-white" />
+          <button onclick="lookupDirectTicket()" class="neo-btn neo-btn-primary px-4 py-2.5 text-sm">
             Track
           </button>
         </div>
       </div>
 
       <!-- Filters & Sorters -->
-      <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div class="neo-card p-5 bg-white flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <input id="public-search" oninput="debouncePublicFilter()" type="text" placeholder="Search keywords..." class="pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 w-48 sm:w-72" />
+            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input id="public-search" oninput="debouncePublicFilter()" type="text" placeholder="Search keywords..." class="pl-9 pr-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm w-48 sm:w-64 bg-white" />
           </div>
 
-          <select id="public-filter-ward" onchange="renderPublicFeed()" class="text-xs sm:text-sm py-2 px-3 rounded-xl border border-slate-300 focus:outline-none bg-white">
+          <select id="public-filter-ward" onchange="renderPublicFeed()" class="text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none">
             <option value="">All Municipal Wards</option>
           </select>
 
-          <select id="public-filter-status" onchange="renderPublicFeed()" class="text-xs sm:text-sm py-2 px-3 rounded-xl border border-slate-300 focus:outline-none bg-white">
+          <select id="public-filter-status" onchange="renderPublicFeed()" class="text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none">
             <option value="">All Statuses</option>
             <option value="Reported">Reported</option>
             <option value="Dispatched">Dispatched</option>
@@ -689,10 +680,9 @@
           </select>
         </div>
 
-        <!-- Sort by -->
-        <div class="flex items-center space-x-2.5 text-xs sm:text-sm font-medium">
+        <div class="flex items-center space-x-2.5 text-xs sm:text-sm font-bold">
           <span class="text-slate-500">Sort by:</span>
-          <select id="public-sort" onchange="renderPublicFeed()" class="py-2 px-3 rounded-xl border border-slate-300 focus:outline-none bg-white font-semibold">
+          <select id="public-sort" onchange="renderPublicFeed()" class="py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none font-bold">
             <option value="newest">Most Recent</option>
             <option value="upvotes">Most Endorsed (+1)</option>
             <option value="urgency">Highest Severity</option>
@@ -709,125 +699,145 @@
 
   </main>
 
+  <!-- ================= FLOATING MOBILE BOTTOM NAVIGATION DOCK ================= -->
+  <div class="md:hidden mobile-nav-dock flex items-center justify-around">
+    <button onclick="switchTab('dashboard')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-cyan-400">
+      <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5 text-cyan-400"></i>
+      <span>Command</span>
+    </button>
+    <button onclick="switchTab('map')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-emerald-400">
+      <i data-lucide="map-pin" class="w-5 h-5 mb-0.5 text-emerald-400"></i>
+      <span>Spatial GIS</span>
+    </button>
+    <button onclick="switchTab('report')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-amber-400">
+      <i data-lucide="file-plus-2" class="w-5 h-5 mb-0.5 text-amber-400"></i>
+      <span>File Issue</span>
+    </button>
+    <button onclick="switchTab('tracker')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-indigo-400">
+      <i data-lucide="list-checks" class="w-5 h-5 mb-0.5 text-indigo-400"></i>
+      <span>Tracker</span>
+    </button>
+  </div>
+
   <!-- ================= FOOTER ================= -->
-  <footer class="bg-[#090e1a] text-slate-400 text-xs sm:text-sm py-10 border-t border-slate-800 mt-16">
+  <footer class="bg-[#090e1a] text-slate-400 text-xs sm:text-sm py-12 border-t-2 border-slate-900 mt-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="flex items-center space-x-3.5">
-        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
-          <i data-lucide="shield" class="w-4 h-4"></i>
+        <div class="w-9 h-9 rounded-xl bg-indigo-600 border-2 border-white flex items-center justify-center text-white shadow-neo-sm">
+          <i data-lucide="shield" class="w-5 h-5"></i>
         </div>
         <div>
-          <span class="text-white font-extrabold text-sm sm:text-base">CivicPulse Enterprise Platform</span>
-          <p class="text-xs text-slate-500">Municipal Corporation Data Portal &middot; Powered by Google Gemini AI</p>
+          <span class="text-white font-black text-base">CivicPulse Enterprise Platform</span>
+          <p class="text-xs text-slate-400 font-bold">Municipal Corporation Urban Intelligence &middot; Powered by Google Gemini AI</p>
         </div>
       </div>
-      <div class="text-slate-400 text-xs sm:text-sm text-center md:text-right">
-        <span>Public Accountability Ledger &middot; Transparent Redressal Standard</span>
+      <div class="text-slate-400 font-bold text-center md:text-right">
+        <span>Legally Bound by Public Accountability Standard &middot; 24x7 Emergency Directorate</span>
       </div>
     </div>
   </footer>
 
   <!-- ================= MODAL: ISSUE DETAILS DOSSIER ================= -->
-  <div id="modal-details" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
+  <div id="modal-details" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border-2 border-slate-900 shadow-neo-xl">
       
       <!-- Modal Header -->
-      <div class="p-6 sm:p-7 border-b border-slate-200 flex items-start justify-between sticky top-0 bg-white z-10">
+      <div class="p-6 border-b-2 border-slate-900 flex items-start justify-between sticky top-0 bg-white/95 backdrop-blur-md z-10">
         <div>
-          <div class="flex items-center space-x-2.5">
-            <span id="mdl-id" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-indigo-100 text-indigo-800">CR-XXXX</span>
-            <span id="mdl-priority-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold">Priority</span>
-            <span id="mdl-status-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold">Status</span>
+          <div class="flex items-center space-x-2">
+            <span id="mdl-id" class="neo-badge bg-indigo-100 text-indigo-900 font-mono">CR-XXXX</span>
+            <span id="mdl-priority-badge" class="neo-badge">Priority</span>
+            <span id="mdl-status-badge" class="neo-badge">Status</span>
           </div>
-          <h2 id="mdl-title" class="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">Issue Title</h2>
-          <p id="mdl-location" class="text-xs sm:text-sm text-slate-500 mt-0.5">Location</p>
+          <h2 id="mdl-title" class="text-lg sm:text-xl font-black text-slate-950 mt-2">Issue Title</h2>
+          <p id="mdl-location" class="text-xs sm:text-sm text-slate-500 font-bold mt-0.5">Location</p>
         </div>
-        <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition">
+        <button onclick="closeDetailsModal()" class="neo-btn neo-btn-white p-2">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <!-- Modal Body -->
-      <div class="p-6 sm:p-7 space-y-6 text-sm">
+      <div class="p-6 space-y-6 text-sm font-bold">
         
         <!-- Snapshot Frame -->
-        <div id="mdl-photo-box" class="civic-img-frame rounded-2xl border border-slate-200 shadow-sm">
+        <div id="mdl-photo-box" class="civic-img-frame rounded-2xl border-2 border-slate-900 shadow-neo-md">
           <img id="mdl-photo" class="w-full h-full object-cover" />
         </div>
 
         <!-- Description -->
         <div>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">Citizen Statement</h4>
-          <p id="mdl-desc" class="text-slate-800 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 leading-relaxed"></p>
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">Citizen Statement</h4>
+          <p id="mdl-desc" class="text-slate-800 bg-slate-50 p-4 rounded-2xl border-2 border-slate-900 leading-relaxed font-semibold"></p>
         </div>
 
         <!-- Lifecycle Stepper -->
         <div>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Resolution Stepper</h4>
-          <div class="grid grid-cols-4 gap-2 text-center text-xs font-bold">
-            <div id="step-reported" class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-400">1. Reported</div>
-            <div id="step-dispatched" class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-400">2. Dispatched</div>
-            <div id="step-inprogress" class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-400">3. In Progress</div>
-            <div id="step-resolved" class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-400">4. Resolved</div>
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Resolution Progress Stepper</h4>
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-black">
+            <div id="step-reported" class="py-2.5 px-1 rounded-xl border-2 border-slate-900 bg-slate-50 text-slate-400">1. Reported</div>
+            <div id="step-dispatched" class="py-2.5 px-1 rounded-xl border-2 border-slate-900 bg-slate-50 text-slate-400">2. Dispatched</div>
+            <div id="step-inprogress" class="py-2.5 px-1 rounded-xl border-2 border-slate-900 bg-slate-50 text-slate-400">3. In Progress</div>
+            <div id="step-resolved" class="py-2.5 px-1 rounded-xl border-2 border-slate-900 bg-slate-50 text-slate-400">4. Resolved</div>
           </div>
         </div>
 
         <!-- AI Dossier Card -->
-        <div class="p-5 rounded-2xl bg-[#090e1a] text-white space-y-3.5 shadow-md">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="neo-glass-dark p-5 text-white space-y-3.5">
+          <div class="flex items-center justify-between border-b-2 border-slate-800 pb-2.5">
             <div class="flex items-center space-x-2">
               <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
-              <span class="text-xs font-bold uppercase tracking-wider text-cyan-300">Gemini AI Triage Assessment</span>
+              <span class="text-xs font-black uppercase tracking-wider text-cyan-300">Gemini AI Triage Assessment</span>
             </div>
-            <span id="mdl-ai-source" class="text-xs font-mono text-slate-400">Gemini 2.5 Flash</span>
+            <span id="mdl-ai-source" class="text-xs font-mono text-slate-400 font-bold">Gemini 2.5 Flash</span>
           </div>
           
-          <div class="grid grid-cols-2 gap-4 text-xs">
+          <div class="grid grid-cols-2 gap-4 text-xs font-bold">
             <div>
               <span class="text-slate-400">Department Routing:</span>
-              <div id="mdl-ai-dept" class="font-bold text-white text-sm mt-0.5">--</div>
+              <div id="mdl-ai-dept" class="font-black text-white text-sm mt-0.5">--</div>
             </div>
             <div>
               <span class="text-slate-400">Assigned Field Crew:</span>
-              <div id="mdl-officer" class="font-bold text-emerald-400 text-sm mt-0.5">--</div>
+              <div id="mdl-officer" class="font-black text-emerald-400 text-sm mt-0.5">--</div>
             </div>
           </div>
 
-          <div class="text-xs">
-            <span class="text-slate-400">Reasoning &amp; Urgency Logic:</span>
+          <div class="text-xs font-semibold">
+            <span class="text-slate-400 font-bold">Reasoning &amp; Urgency Logic:</span>
             <p id="mdl-ai-reason" class="text-slate-200 text-xs sm:text-sm mt-0.5 leading-relaxed"></p>
           </div>
 
-          <div class="text-xs">
-            <span class="text-slate-400">Recommended Engineering Action:</span>
-            <p id="mdl-ai-action" class="text-cyan-200 font-semibold text-xs sm:text-sm mt-0.5 leading-relaxed"></p>
+          <div class="text-xs font-semibold">
+            <span class="text-slate-400 font-bold">Recommended Engineering Action:</span>
+            <p id="mdl-ai-action" class="text-cyan-200 font-black text-xs sm:text-sm mt-0.5 leading-relaxed"></p>
           </div>
         </div>
 
         <!-- Official Resolution Proof -->
-        <div id="mdl-resolution-box" class="hidden p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2">
-          <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider text-emerald-800">
-            <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
+        <div id="mdl-resolution-box" class="hidden p-5 rounded-2xl bg-emerald-100 border-2 border-slate-900 shadow-neo-sm text-emerald-950 space-y-1.5">
+          <div class="flex items-center space-x-2 font-black text-xs uppercase tracking-wider text-emerald-900">
+            <i data-lucide="award" class="w-5 h-5 text-emerald-700"></i>
             <span>Official Closure &amp; Resolution Proof</span>
           </div>
-          <p id="mdl-resolution-note" class="text-sm text-emerald-900 font-semibold"></p>
-          <div id="mdl-resolution-officer" class="text-xs text-emerald-700 font-medium"></div>
+          <p id="mdl-resolution-note" class="text-sm text-emerald-950 font-black"></p>
+          <div id="mdl-resolution-officer" class="text-xs text-emerald-800 font-bold"></div>
         </div>
 
         <!-- Timeline History -->
         <div>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Audit &amp; Event Log</h4>
-          <div id="mdl-history" class="space-y-2 text-xs">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Audit &amp; Event Log</h4>
+          <div id="mdl-history" class="space-y-2 text-xs font-semibold">
             <!-- Timeline entries -->
           </div>
         </div>
 
         <!-- Add Community Comment -->
-        <div class="pt-4 border-t border-slate-200">
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-2">Add Public Observation / Community Feedback</h4>
+        <div class="pt-4 border-t-2 border-slate-900">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-800 mb-2">Add Public Observation / Community Feedback</h4>
           <div class="flex gap-2">
-            <input id="comment-input" type="text" placeholder="e.g. Work crew arrived on site with materials..." class="flex-1 px-4 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500" />
-            <button onclick="postCitizenComment()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold transition">
+            <input id="comment-input" type="text" placeholder="e.g. Work crew is currently on site..." class="flex-1 px-4 py-2.5 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm bg-slate-50" />
+            <button onclick="postCitizenComment()" class="neo-btn neo-btn-primary px-5 py-2.5 text-xs sm:text-sm">
               Post Note
             </button>
           </div>
@@ -838,22 +848,22 @@
   </div>
 
   <!-- ================= MODAL: OFFICER ACTION DRAWER (ADMIN) ================= -->
-  <div id="modal-officer-action" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-7 shadow-2xl border border-slate-200 space-y-5">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+  <div id="modal-officer-action" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full p-6 sm:p-7 border-2 border-slate-900 shadow-neo-xl space-y-5">
+      <div class="flex items-center justify-between border-b-2 border-slate-900 pb-4">
         <div>
-          <h3 class="text-base font-bold text-slate-900">Officer Work Order Dispatch</h3>
-          <p id="adm-action-ticket" class="text-xs font-mono text-indigo-600 font-bold">Ticket: CR-XXXX</p>
+          <h3 class="text-base font-black text-slate-950">Officer Work Order Dispatch</h3>
+          <p id="adm-action-ticket" class="text-xs font-mono text-indigo-700 font-black">Ticket: CR-XXXX</p>
         </div>
-        <button onclick="closeOfficerActionModal()" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button onclick="closeOfficerActionModal()" class="neo-btn neo-btn-white p-2">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div class="space-y-3.5 text-xs sm:text-sm">
+      <div class="space-y-3.5 text-xs sm:text-sm font-bold">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Update Status</label>
-          <select id="adm-set-status" class="w-full p-2.5 rounded-xl border border-slate-300 bg-white">
+          <label class="block font-black text-slate-800 mb-1">Update Status</label>
+          <select id="adm-set-status" class="w-full p-2.5 rounded-xl border-2 border-slate-900 bg-white shadow-neo-sm">
             <option value="Reported">Reported</option>
             <option value="Dispatched">Dispatched</option>
             <option value="In Progress">In Progress</option>
@@ -862,15 +872,15 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Reassign Department</label>
-          <select id="adm-set-dept" class="w-full p-2.5 rounded-xl border border-slate-300 bg-white">
+          <label class="block font-black text-slate-800 mb-1">Reassign Department</label>
+          <select id="adm-set-dept" class="w-full p-2.5 rounded-xl border-2 border-slate-900 bg-white shadow-neo-sm">
             <!-- Dynamic Depts -->
           </select>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Priority Override</label>
-          <select id="adm-set-priority" class="w-full p-2.5 rounded-xl border border-slate-300 bg-white">
+          <label class="block font-black text-slate-800 mb-1">Priority Override</label>
+          <select id="adm-set-priority" class="w-full p-2.5 rounded-xl border-2 border-slate-900 bg-white shadow-neo-sm">
             <option value="Critical">Critical (24h SLA)</option>
             <option value="High">High (48h SLA)</option>
             <option value="Medium">Medium (120h SLA)</option>
@@ -879,30 +889,30 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Assign Field Squad / Engineer</label>
-          <input id="adm-set-officer" placeholder="e.g. Er. Rajesh Varma (Field Lead)" class="w-full p-2.5 rounded-xl border border-slate-300" />
+          <label class="block font-black text-slate-800 mb-1">Assign Field Squad / Engineer</label>
+          <input id="adm-set-officer" placeholder="e.g. Er. Rajesh Varma (Field Lead)" class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50" />
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Public Citizen Progress Note</label>
-          <textarea id="adm-set-note" rows="2" placeholder="Citizen-visible update regarding repair progress..." class="w-full p-2.5 rounded-xl border border-slate-300"></textarea>
+          <label class="block font-black text-slate-800 mb-1">Public Citizen Progress Note</label>
+          <textarea id="adm-set-note" rows="2" placeholder="Citizen-visible update regarding repair progress..." class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50"></textarea>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Internal Officer Confidential Note</label>
-          <input id="adm-set-internal" placeholder="Logistics, vendor procurement or police coordination note..." class="w-full p-2.5 rounded-xl border border-slate-300" />
+          <label class="block font-black text-slate-800 mb-1">Internal Officer Confidential Note</label>
+          <input id="adm-set-internal" placeholder="Logistics, vendor procurement or police coordination note..." class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50" />
         </div>
       </div>
 
-      <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
-        <button onclick="deleteTicketConfirm()" class="px-4 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs sm:text-sm font-bold">
+      <div class="pt-4 border-t-2 border-slate-900 flex items-center justify-between">
+        <button onclick="deleteTicketConfirm()" class="neo-btn bg-rose-100 text-rose-900 border-rose-900 px-4 py-2 text-xs sm:text-sm">
           Delete Ticket
         </button>
         <div class="flex space-x-2.5">
-          <button onclick="closeOfficerActionModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm font-semibold">
+          <button onclick="closeOfficerActionModal()" class="neo-btn neo-btn-white px-4 py-2 text-xs sm:text-sm">
             Cancel
           </button>
-          <button onclick="saveOfficerAction()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold">
+          <button onclick="saveOfficerAction()" class="neo-btn neo-btn-primary px-5 py-2 text-xs sm:text-sm">
             Apply Changes
           </button>
         </div>
@@ -911,27 +921,27 @@
   </div>
 
   <!-- ================= MODAL: OFFICER LOGIN ================= -->
-  <div id="modal-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-7 shadow-2xl border border-slate-200 space-y-5">
+  <div id="modal-login" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-7 border-2 border-slate-900 shadow-neo-xl space-y-5">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-neo-sm">
           <i data-lucide="shield-check" class="w-5 h-5"></i>
         </div>
         <div>
-          <h3 class="text-base font-bold text-slate-900">Officer Authentication</h3>
-          <p class="text-xs text-slate-500">Enter Municipal Security PIN</p>
+          <h3 class="text-base font-black text-slate-950">Officer Authentication</h3>
+          <p class="text-xs text-slate-500 font-bold">Enter Municipal Security PIN</p>
         </div>
       </div>
 
       <div>
-        <label for="admin-pin-input" class="block text-xs font-bold text-slate-700 mb-1.5">Security PIN</label>
-        <input id="admin-pin-input" type="password" placeholder="Defaults to admin123" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 font-mono" />
-        <p id="login-error-msg" class="text-xs text-red-600 mt-1.5 hidden">Incorrect PIN. Please re-enter.</p>
+        <label for="admin-pin-input" class="block text-xs font-black text-slate-800 mb-1.5">Security PIN</label>
+        <input id="admin-pin-input" type="password" placeholder="Defaults to admin123" class="w-full px-4 py-3 text-sm font-black rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm font-mono bg-slate-50" />
+        <p id="login-error-msg" class="text-xs text-rose-600 font-black mt-1.5 hidden">Incorrect PIN. Please re-enter.</p>
       </div>
 
       <div class="flex space-x-2.5 pt-2">
-        <button onclick="closeAdminModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold hover:bg-slate-50">Cancel</button>
-        <button onclick="submitAdminLogin()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md">Authenticate</button>
+        <button onclick="closeAdminModal()" class="flex-1 neo-btn neo-btn-white py-2.5 text-xs sm:text-sm">Cancel</button>
+        <button onclick="submitAdminLogin()" class="flex-1 neo-btn neo-btn-primary py-2.5 text-xs sm:text-sm">Authenticate</button>
       </div>
     </div>
   </div>

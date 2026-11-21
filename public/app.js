@@ -186,9 +186,9 @@ function switchTab(tabId) {
     if (view) view.classList.toggle('hidden', t !== tabId);
     if (btn) {
       if (t === tabId) {
-        btn.className = 'nav-tab active flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-white bg-slate-800 shadow-xs';
+        btn.className = 'neo-nav-tab active';
       } else {
-        btn.className = 'nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/50';
+        btn.className = 'neo-nav-tab';
       }
     }
   });
@@ -196,6 +196,9 @@ function switchTab(tabId) {
   if (tabId === 'map') {
     setTimeout(initOrUpdateMap, 150);
   }
+
+  // Scroll to top of viewport smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   lucide.createIcons();
 }
@@ -383,17 +386,17 @@ function renderDashboard() {
           ${statusBadge}
         </td>
         <td class="py-4 px-5 whitespace-nowrap font-mono text-slate-700">
-          <button onclick="upvoteIssue('${item.id}')" class="flex items-center space-x-1.5 px-3 py-1 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 transition font-bold text-xs">
-            <i data-lucide="thumbs-up" class="w-3.5 h-3.5 text-slate-500"></i>
+          <button onclick="upvoteIssue('${item.id}')" class="neo-btn neo-btn-white px-2.5 py-1 text-xs">
+            <i data-lucide="thumbs-up" class="w-3.5 h-3.5 text-slate-700"></i>
             <span>${item.upvotes || 1}</span>
           </button>
         </td>
         <td class="py-4 px-5 text-right whitespace-nowrap">
           <div class="flex items-center justify-end space-x-2">
-            <button onclick="openDetailsModal('${item.id}')" title="Inspect Triage Dossier" class="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
+            <button onclick="openDetailsModal('${item.id}')" title="Inspect Triage Dossier" class="neo-btn neo-btn-white p-1.5 text-xs">
               <i data-lucide="eye" class="w-4 h-4"></i>
             </button>
-            <button onclick="openOfficerActionModal('${item.id}')" title="Officer Dispatch Action" class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold flex items-center space-x-1.5 transition">
+            <button onclick="openOfficerActionModal('${item.id}')" title="Officer Dispatch Action" class="neo-btn neo-btn-cyan px-3 py-1.5 text-xs">
               <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
               <span>Dispatch</span>
             </button>
@@ -751,13 +754,13 @@ function renderPublicFeed() {
     const imgUrl = item.image || getCategorySvg(item.category, item.title);
 
     return `
-      <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover-card flex flex-col justify-between">
+      <div class="neo-card bg-white overflow-hidden flex flex-col justify-between">
         
         <!-- Snapshot Frame -->
         <div class="civic-img-frame relative cursor-pointer" onclick="openDetailsModal('${item.id}')">
           <img src="${imgUrl}" onerror="this.src=getCategorySvg('${item.category}','${item.title}')" alt="Grievance Evidence" />
           <div class="absolute top-3 left-3 flex items-center space-x-2">
-            <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-slate-900/80 backdrop-blur-xs text-white border border-white/20">${item.id}</span>
+            <span class="neo-badge bg-slate-900 text-white border-white font-mono">${item.id}</span>
           </div>
           <div class="absolute top-3 right-3 flex items-center space-x-1.5">
             ${prioBadge}
@@ -766,30 +769,30 @@ function renderPublicFeed() {
 
         <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
           <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-medium mb-1.5">
-              <span class="font-bold text-indigo-600">${escapeHtml(item.department)}</span>
+            <div class="flex items-center justify-between text-xs text-slate-500 font-bold mb-1.5">
+              <span class="font-black text-indigo-700">${escapeHtml(item.department)}</span>
               <span>${dateStr}</span>
             </div>
 
-            <h3 class="font-extrabold text-slate-900 text-base leading-snug line-clamp-1 cursor-pointer hover:text-indigo-600 transition" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</h3>
-            <p class="text-xs sm:text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>
+            <h3 class="font-black text-slate-950 text-base leading-snug line-clamp-1 cursor-pointer hover:text-indigo-600 transition" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</h3>
+            <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-2 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>
 
-            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="mt-4 pt-3 border-t-2 border-slate-100 flex items-center justify-between text-xs text-slate-500 font-bold">
               <span class="flex items-center space-x-1.5">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
-                <span class="truncate max-w-[160px] font-medium">${escapeHtml(item.location)}</span>
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-700"></i>
+                <span class="truncate max-w-[160px] font-bold text-slate-800">${escapeHtml(item.location)}</span>
               </span>
-              <span class="font-semibold text-slate-700">${statusBadge}</span>
+              <span>${statusBadge}</span>
             </div>
           </div>
 
-          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-            <button onclick="upvoteIssue('${item.id}')" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-xs font-bold text-slate-700 transition">
-              <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
+          <div class="pt-3 border-t-2 border-slate-100 flex items-center justify-between">
+            <button onclick="upvoteIssue('${item.id}')" class="neo-btn neo-btn-white px-3 py-1.5 text-xs text-rose-700">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-600"></i>
               <span>${item.upvotes || 1} Endorse</span>
             </button>
 
-            <button onclick="openDetailsModal('${item.id}')" class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 transition">
+            <button onclick="openDetailsModal('${item.id}')" class="neo-btn neo-btn-primary px-3.5 py-1.5 text-xs">
               <span>View Dossier</span>
               <i data-lucide="chevron-right" class="w-4 h-4"></i>
             </button>
@@ -1084,25 +1087,25 @@ function escapeHtml(str) {
 
 function getPriorityBadgeHtml(priority) {
   const p = (priority || 'Medium').toLowerCase();
-  return `<span class="px-2.5 py-1 rounded-lg text-xs font-bold priority-${p}">${priority}</span>`;
+  return `<span class="neo-badge priority-${p}">${priority}</span>`;
 }
 
 function getStatusBadgeHtml(status) {
   const s = (status || 'Reported').toLowerCase().replace(' ', '');
-  return `<span class="px-2.5 py-1 rounded-lg text-xs font-bold badge-${s}">${status}</span>`;
+  return `<span class="neo-badge badge-${s}">${status}</span>`;
 }
 
 function getSlaBadgeHtml(slaStatus) {
   if (slaStatus === 'Breached') {
-    return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">SLA BREACH</span>`;
+    return `<span class="neo-badge bg-rose-200 text-rose-950 border-rose-900 text-[10px]">SLA BREACH</span>`;
   }
   if (slaStatus === 'Approaching Breach') {
-    return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">SLA &lt;12H</span>`;
+    return `<span class="neo-badge bg-amber-200 text-amber-950 border-amber-900 text-[10px]">SLA &lt;12H</span>`;
   }
   if (slaStatus === 'Met') {
-    return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">SLA MET</span>`;
+    return `<span class="neo-badge bg-emerald-200 text-emerald-950 border-emerald-900 text-[10px]">SLA MET</span>`;
   }
-  return `<span class="px-2 py-0.5 rounded-md text-[11px] font-medium text-slate-500">On Time</span>`;
+  return `<span class="neo-badge bg-slate-200 text-slate-800 text-[10px]">On Time</span>`;
 }
 
 function showToast(message, type = 'info') {
@@ -1111,7 +1114,7 @@ function showToast(message, type = 'info') {
 
   const toast = document.createElement('div');
   const bg = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
-  toast.className = `${bg} text-white px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-xl flex items-center space-x-2.5 transition-all transform duration-300 opacity-0 translate-y-3`;
+  toast.className = `neo-card ${bg} text-white px-5 py-3 text-xs sm:text-sm font-black shadow-neo-lg border-2 border-white flex items-center space-x-2.5 transition-all transform duration-300 opacity-0 translate-y-3`;
 
   const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info';
   toast.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 shrink-0"></i><span>${escapeHtml(message)}</span>`;
