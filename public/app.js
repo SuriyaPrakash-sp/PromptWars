@@ -21,6 +21,37 @@ let APP_STATE = {
   attachedImageBase64: null
 };
 
+// High-Fidelity SVG Graphic Snapshot Generator (Client-Side Guaranteed Visuals)
+function getCategorySvg(category, title) {
+  const t = (title || category || '').toLowerCase();
+  
+  if (/pothole|road|crater|asphalt/.test(t) || (category && category.includes('Road'))) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><path d="M0 240 Q150 200 300 240 T600 240 L600 360 L0 360 Z" fill="%230f172a"/><path d="M120 270 Q240 230 380 275 Q420 310 320 330 Q180 320 120 270 Z" fill="%23020617" stroke="%23334155" stroke-width="4"/><polygon points="460,330 490,330 480,240 470,240" fill="%23ea580c"/><polygon points="464,305 486,305 483,280 467,280" fill="%23ffffff"/><polygon points="120,330 150,330 140,240 130,240" fill="%23ea580c"/><polygon points="124,305 146,305 143,280 127,280" fill="%23ffffff"/><circle cx="530" cy="60" r="32" fill="%23ef4444" opacity="0.9"/><text x="530" y="68" font-family="Arial,sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">!</text><rect x="30" y="30" width="220" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%2338bdf8">ROAD DAMAGE REPORT</text></svg>`;
+  }
+  
+  if (/manhole|drain|flood|pit/.test(t) || (category && (category.includes('Manhole') || category.includes('Drain')))) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%23334155"/><ellipse cx="300" cy="240" rx="180" ry="70" fill="%23020617" stroke="%23dc2626" stroke-width="6"/><ellipse cx="300" cy="240" rx="140" ry="50" fill="%23000000"/><line x1="140" y1="240" x2="460" y2="240" stroke="%23ef4444" stroke-width="3" stroke-dasharray="8 8"/><line x1="300" y1="180" x2="300" y2="300" stroke="%23ef4444" stroke-width="3" stroke-dasharray="8 8"/><rect x="80" y="160" width="440" height="24" fill="%23facc15" stroke="%23000" stroke-width="2"/><line x1="110" y1="160" x2="90" y2="184" stroke="%23000" stroke-width="8"/><line x1="170" y1="160" x2="150" y2="184" stroke="%23000" stroke-width="8"/><line x1="230" y1="160" x2="210" y2="184" stroke="%23000" stroke-width="8"/><line x1="290" y1="160" x2="270" y2="184" stroke="%23000" stroke-width="8"/><rect x="30" y="30" width="240" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23ef4444">CRITICAL MANHOLE PIT</text></svg>`;
+  }
+
+  if (/wire|electric|spark|shock|light|pole/.test(t) || (category && (category.includes('Light') || category.includes('Electric')))) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%23090d16"/><line x1="120" y1="40" x2="120" y2="360" stroke="%2364748b" stroke-width="12"/><line x1="60" y1="90" x2="180" y2="90" stroke="%2364748b" stroke-width="8"/><path d="M120 90 Q300 180 480 120" stroke="%2338bdf8" stroke-width="4" fill="none"/><path d="M120 90 Q240 260 340 310" stroke="%23facc15" stroke-width="5" fill="none"/><polygon points="340,310 325,280 345,285 335,260 365,295 345,295 360,320" fill="%23fef08a"/><circle cx="340" cy="310" r="28" fill="%23facc15" opacity="0.4"/><rect x="30" y="30" width="240" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23facc15">ELECTRICAL ARC HAZARD</text></svg>`;
+  }
+
+  if (/water|pipe|leak|burst|sewage/.test(t) || (category && (category.includes('Water') || category.includes('Sewage')))) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><rect x="0" y="220" width="600" height="140" fill="%230f172a"/><rect x="0" y="270" width="600" height="40" fill="%230284c7" opacity="0.8"/><ellipse cx="300" cy="270" rx="90" ry="25" fill="%2338bdf8"/><path d="M280 270 Q240 120 300 70 Q360 120 320 270 Z" fill="%230284c7" opacity="0.65"/><path d="M290 270 Q270 140 300 90 Q330 140 310 270 Z" fill="%237dd3fc" opacity="0.9"/><rect x="30" y="30" width="250" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%2338bdf8">WATER MAIN PIPE BURST</text></svg>`;
+  }
+
+  if (/garbage|waste|dump|trash|bin/.test(t) || (category && (category.includes('Garbage') || category.includes('Waste')))) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><rect x="180" y="160" width="240" height="160" rx="8" fill="%23047857"/><rect x="160" y="140" width="280" height="24" rx="4" fill="%23065f46"/><path d="M190 140 Q250 80 300 120 Q360 70 410 140 Z" fill="%23475569"/><circle cx="250" cy="100" r="22" fill="%23334155"/><circle cx="340" cy="95" r="26" fill="%2364748b"/><polygon points="210,140 250,70 280,140" fill="%23cbd5e1"/><rect x="30" y="30" width="250" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23f59e0b">MUNICIPAL REFUSE OVERFLOW</text></svg>`;
+  }
+
+  if (/signal|traffic|sign/.test(t) || (category && (category.includes('Traffic') || category.includes('Signal')))) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%230f172a"/><rect x="240" y="40" width="120" height="260" rx="16" fill="%231e293b" stroke="%23475569" stroke-width="4"/><circle cx="300" cy="95" r="28" fill="%23334155"/><circle cx="300" cy="170" r="32" fill="%23f59e0b" filter="drop-shadow(0 0 16px %23f59e0b)"/><circle cx="300" cy="245" r="28" fill="%23334155"/><rect x="30" y="30" width="240" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23f59e0b">SIGNAL MALFUNCTION</text></svg>`;
+  }
+
+  return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><circle cx="300" cy="180" r="100" fill="%23334155" opacity="0.5"/><path d="M250 140 L350 140 L300 240 Z" fill="%23f59e0b"/><rect x="30" y="30" width="260" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%236366f1">CIVIC MONITORING SNAPSHOT</text></svg>`;
+}
+
 // ================= INITIALIZATION =================
 document.addEventListener('DOMContentLoaded', async () => {
   startClock();
@@ -29,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   lucide.createIcons();
 });
 
-// Live Clock in Sub-header
 function startClock() {
   const el = document.getElementById('system-time');
   const update = () => {
@@ -63,16 +93,13 @@ async function loadMetadata() {
     const meta = await apiRequest('/api/meta');
     APP_STATE.meta = meta;
 
-    // AI Status Indicator
     const aiText = document.getElementById('ai-status-text');
     if (aiText) {
       aiText.textContent = meta.gemini ? `Gemini Active (${meta.model})` : 'Rules Triage Active';
     }
 
-    // Populate Dropdowns
     populateDropdowns(meta);
 
-    // Verify Admin session if token exists
     if (APP_STATE.adminToken) {
       try {
         const auth = await apiRequest('/api/admin/check');
@@ -91,7 +118,6 @@ async function loadMetadata() {
 }
 
 function populateDropdowns(meta) {
-  // Ward selectors
   const wardSelects = ['form-ward', 'public-filter-ward'];
   wardSelects.forEach(id => {
     const el = document.getElementById(id);
@@ -104,7 +130,6 @@ function populateDropdowns(meta) {
     });
   });
 
-  // Category selectors
   const catEl = document.getElementById('form-cat');
   if (catEl && meta.CATEGORIES) {
     meta.CATEGORIES.forEach(cat => {
@@ -115,7 +140,6 @@ function populateDropdowns(meta) {
     });
   }
 
-  // Department filters
   const deptSelects = ['tbl-filter-dept', 'adm-set-dept'];
   deptSelects.forEach(id => {
     const el = document.getElementById(id);
@@ -129,7 +153,6 @@ function populateDropdowns(meta) {
   });
 }
 
-// Fetch all issues & refresh UI
 async function refreshData() {
   try {
     const [issues, analytics] = await Promise.all([
@@ -143,6 +166,7 @@ async function refreshData() {
     renderDashboard();
     renderCharts(analytics);
     renderPublicFeed();
+    renderGisSidebar();
     if (APP_STATE.activeTab === 'map') renderMapMarkers();
 
     lucide.createIcons();
@@ -162,9 +186,9 @@ function switchTab(tabId) {
     if (view) view.classList.toggle('hidden', t !== tabId);
     if (btn) {
       if (t === tabId) {
-        btn.className = 'nav-tab active flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white bg-slate-700';
+        btn.className = 'nav-tab active flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-white bg-slate-800 shadow-xs';
       } else {
-        btn.className = 'nav-tab flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:text-white';
+        btn.className = 'nav-tab flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/50';
       }
     }
   });
@@ -187,7 +211,6 @@ function updateKPIs(analytics) {
   document.getElementById('kpi-resolved-count').textContent = `(${s.resolved} resolved)`;
   document.getElementById('kpi-sla').textContent = `${s.slaComplianceRate}%`;
 
-  // SLA hazard banner
   const alertBox = document.getElementById('sla-hazard-alert');
   const countEl = document.getElementById('sla-hazard-count');
   if (s.slaBreached > 0 || s.slaApproaching > 0) {
@@ -219,8 +242,8 @@ function renderCharts(analytics) {
           label: 'Active Grievances',
           data: deptData,
           backgroundColor: '#4f46e5',
-          borderRadius: 6,
-          barThickness: 16
+          borderRadius: 8,
+          barThickness: 20
         }]
       },
       options: {
@@ -233,11 +256,11 @@ function renderCharts(analytics) {
         scales: {
           x: {
             grid: { display: false },
-            ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, stepSize: 1 }
+            ticks: { font: { family: 'Plus Jakarta Sans', size: 12 }, stepSize: 1 }
           },
           y: {
             grid: { display: false },
-            ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } }
+            ticks: { font: { family: 'Plus Jakarta Sans', size: 12 } }
           }
         }
       }
@@ -265,18 +288,18 @@ function renderCharts(analytics) {
         datasets: [{
           data: catData,
           backgroundColor: ['#4f46e5', '#0284c7', '#10b981', '#f59e0b', '#ef4444'],
-          borderWidth: 2,
+          borderWidth: 3,
           borderColor: '#ffffff'
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '70%',
+        cutout: '68%',
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { boxWidth: 10, font: { family: 'Plus Jakarta Sans', size: 10 } }
+            labels: { boxWidth: 12, font: { family: 'Plus Jakarta Sans', size: 12 } }
           }
         }
       }
@@ -314,9 +337,9 @@ function renderDashboard() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="py-8 text-center text-slate-400">
-          <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-          <p>No civic complaints match the selected filter criteria.</p>
+        <td colspan="8" class="py-12 text-center text-slate-400">
+          <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+          <p class="text-sm font-semibold">No civic complaints match the selected filter criteria.</p>
         </td>
       </tr>
     `;
@@ -328,44 +351,50 @@ function renderDashboard() {
     const prioBadge = getPriorityBadgeHtml(item.priority);
     const statusBadge = getStatusBadgeHtml(item.status);
     const slaBadge = getSlaBadgeHtml(item.slaStatus);
+    const imgUrl = item.image || getCategorySvg(item.category, item.title);
 
     return `
       <tr class="hover:bg-slate-50/80 transition-colors">
-        <td class="py-3 px-4 font-mono font-bold text-indigo-600">
-          <button onclick="openDetailsModal('${item.id}')" class="hover:underline flex items-center space-x-1">
+        <td class="py-4 px-5 font-mono font-bold text-indigo-600">
+          <button onclick="openDetailsModal('${item.id}')" class="hover:underline flex items-center space-x-1.5">
             <span>${item.id}</span>
-            <i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i>
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400"></i>
           </button>
         </td>
-        <td class="py-3 px-4 max-w-xs">
-          <div class="font-bold text-slate-900 truncate" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
-          <div class="text-[11px] text-slate-400 truncate">${escapeHtml(item.location)} &middot; ${escapeHtml(item.ward || 'Central')}</div>
+        <td class="py-4 px-5">
+          <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+            <img src="${imgUrl}" onerror="this.src=getCategorySvg('${item.category}','${item.title}')" alt="Snapshot" class="w-full h-full object-cover" />
+          </div>
         </td>
-        <td class="py-3 px-4 text-slate-700">
-          <div class="truncate max-w-[150px]" title="${escapeHtml(item.department)}">${escapeHtml(item.department)}</div>
+        <td class="py-4 px-5 max-w-xs">
+          <div class="font-bold text-slate-900 truncate text-sm" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
+          <div class="text-xs text-slate-500 truncate mt-0.5">${escapeHtml(item.location)} &middot; <span class="font-semibold text-slate-600">${escapeHtml(item.ward || 'Central')}</span></div>
         </td>
-        <td class="py-3 px-4 whitespace-nowrap">
-          <div class="flex items-center space-x-1.5">
+        <td class="py-4 px-5 text-slate-700 text-xs sm:text-sm">
+          <div class="truncate max-w-[160px] font-semibold" title="${escapeHtml(item.department)}">${escapeHtml(item.department)}</div>
+        </td>
+        <td class="py-4 px-5 whitespace-nowrap">
+          <div class="flex items-center space-x-2">
             ${prioBadge}
             ${slaBadge}
           </div>
         </td>
-        <td class="py-3 px-4 whitespace-nowrap">
+        <td class="py-4 px-5 whitespace-nowrap">
           ${statusBadge}
         </td>
-        <td class="py-3 px-4 whitespace-nowrap font-mono text-slate-600">
-          <button onclick="upvoteIssue('${item.id}')" class="flex items-center space-x-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 transition">
-            <i data-lucide="thumbs-up" class="w-3 h-3 text-slate-500"></i>
+        <td class="py-4 px-5 whitespace-nowrap font-mono text-slate-700">
+          <button onclick="upvoteIssue('${item.id}')" class="flex items-center space-x-1.5 px-3 py-1 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 transition font-bold text-xs">
+            <i data-lucide="thumbs-up" class="w-3.5 h-3.5 text-slate-500"></i>
             <span>${item.upvotes || 1}</span>
           </button>
         </td>
-        <td class="py-3 px-4 text-right whitespace-nowrap">
-          <div class="flex items-center justify-end space-x-1.5">
-            <button onclick="openDetailsModal('${item.id}')" title="Inspect Triage Dossier" class="p-1 rounded text-slate-500 hover:text-slate-800 hover:bg-slate-100">
+        <td class="py-4 px-5 text-right whitespace-nowrap">
+          <div class="flex items-center justify-end space-x-2">
+            <button onclick="openDetailsModal('${item.id}')" title="Inspect Triage Dossier" class="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
               <i data-lucide="eye" class="w-4 h-4"></i>
             </button>
-            <button onclick="openOfficerActionModal('${item.id}')" title="Officer Dispatch Action" class="px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-[11px] font-bold flex items-center space-x-1">
-              <i data-lucide="edit-3" class="w-3 h-3"></i>
+            <button onclick="openOfficerActionModal('${item.id}')" title="Officer Dispatch Action" class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold flex items-center space-x-1.5 transition">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
               <span>Dispatch</span>
             </button>
           </div>
@@ -388,7 +417,6 @@ function initOrUpdateMap() {
   if (!mapContainer) return;
 
   if (!APP_STATE.map) {
-    // Initialize Leaflet Map around city coordinates
     APP_STATE.map = L.map('city-map').setView([13.0827, 80.2707], 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -404,7 +432,6 @@ function initOrUpdateMap() {
 function renderMapMarkers() {
   if (!APP_STATE.map) return;
 
-  // Clear existing markers
   APP_STATE.mapMarkers.forEach(m => APP_STATE.map.removeLayer(m));
   APP_STATE.mapMarkers = [];
 
@@ -417,7 +444,6 @@ function renderMapMarkers() {
     const lng = issue.coordinates.lng;
     bounds.push([lat, lng]);
 
-    // Choose Pin Color Class
     let pinClass = 'pin-medium';
     if (issue.priority === 'Critical') pinClass = 'pin-critical';
     else if (issue.priority === 'High') pinClass = 'pin-high';
@@ -425,22 +451,22 @@ function renderMapMarkers() {
 
     const customIcon = L.divIcon({
       className: 'custom-leaflet-pin',
-      html: `<div class="custom-map-pin ${pinClass}"><i data-lucide="alert-circle" style="width:16px;height:16px"></i></div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      html: `<div class="custom-map-pin ${pinClass}"><i data-lucide="alert-circle" style="width:18px;height:18px"></i></div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
 
     const marker = L.marker([lat, lng], { icon: customIcon }).addTo(APP_STATE.map);
 
     const popupContent = `
-      <div style="font-family: 'Plus Jakarta Sans', sans-serif; min-width: 200px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <strong style="font-size:11px; color:#4f46e5;">${issue.id}</strong>
-          <span style="font-size:10px; font-weight:600; padding:1px 6px; border-radius:4px; background:#f1f5f9;">${issue.priority}</span>
+      <div style="font-family: 'Plus Jakarta Sans', sans-serif; min-width: 220px; padding: 2px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:12px; color:#4f46e5; font-family:'JetBrains Mono', monospace;">${issue.id}</strong>
+          <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; background:#f1f5f9; color:#0f172a;">${issue.priority}</span>
         </div>
-        <h4 style="font-size:13px; font-weight:bold; margin:0 0 4px; color:#0f172a;">${escapeHtml(issue.title)}</h4>
-        <p style="font-size:11px; color:#64748b; margin:0 0 6px;">${escapeHtml(issue.location)}</p>
-        <button onclick="openDetailsModal('${issue.id}')" style="background:#4f46e5; color:white; border:none; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; width:100%; font-weight:600;">
+        <h4 style="font-size:14px; font-weight:bold; margin:0 0 6px; color:#0f172a; line-height:1.3;">${escapeHtml(issue.title)}</h4>
+        <p style="font-size:12px; color:#64748b; margin:0 0 8px;">${escapeHtml(issue.location)}</p>
+        <button onclick="openDetailsModal('${issue.id}')" style="background:#4f46e5; color:white; border:none; padding:6px 10px; font-size:12px; border-radius:6px; cursor:pointer; width:100%; font-weight:700;">
           Inspect Dossier
         </button>
       </div>
@@ -451,10 +477,40 @@ function renderMapMarkers() {
   });
 
   if (bounds.length > 0) {
-    APP_STATE.map.fitBounds(bounds, { padding: [40, 40] });
+    APP_STATE.map.fitBounds(bounds, { padding: [50, 50] });
   }
 
   lucide.createIcons();
+}
+
+function renderGisSidebar() {
+  // Ward Hotspots
+  const wardContainer = document.getElementById('ward-hotspot-list');
+  if (wardContainer && APP_STATE.analytics) {
+    const wards = Object.entries(APP_STATE.analytics.byWard || {});
+    wardContainer.innerHTML = wards.map(([wardName, count]) => `
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-indigo-50/50 transition">
+        <span class="font-semibold text-slate-700 truncate max-w-[200px]">${escapeHtml(wardName)}</span>
+        <span class="px-2.5 py-0.5 rounded-full font-bold font-mono text-xs ${count > 1 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">${count} issues</span>
+      </div>
+    `).join('') || '<p class="text-slate-400">No ward data available</p>';
+  }
+
+  // Emergency Queue Jump in GIS
+  const urgentContainer = document.getElementById('gis-urgent-list');
+  if (urgentContainer) {
+    const criticals = APP_STATE.issues.filter(i => i.priority === 'Critical' || i.priority === 'High').slice(0, 3);
+    urgentContainer.innerHTML = criticals.map(i => `
+      <div onclick="openDetailsModal('${i.id}')" class="p-3 rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 cursor-pointer transition">
+        <div class="flex items-center justify-between">
+          <span class="font-mono font-bold text-rose-700 text-xs">${i.id}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 text-rose-900">${i.priority}</span>
+        </div>
+        <div class="font-bold text-slate-900 mt-1 truncate">${escapeHtml(i.title)}</div>
+        <div class="text-[11px] text-slate-500 mt-0.5 truncate">${escapeHtml(i.location)}</div>
+      </div>
+    `).join('') || '<p class="text-slate-400">No critical emergencies logged.</p>';
+  }
 }
 
 // ================= CITIZEN FORM & LIVE PRE-TRIAGE =================
@@ -478,7 +534,7 @@ function updateAiPreTriage() {
       deptEl.textContent = '-- Typing to predict --';
       prioEl.textContent = 'Medium (Estimated)';
       barEl.style.width = '35%';
-      barEl.className = 'bg-emerald-500 h-2.5 rounded-full transition-all duration-300';
+      barEl.className = 'bg-emerald-500 h-3 rounded-full transition-all duration-300';
       valEl.textContent = '35/100';
       slaEl.textContent = '48 Hours turn-around';
       dupBox.classList.add('hidden');
@@ -524,17 +580,16 @@ function updateAiPreTriage() {
     barEl.style.width = `${hazard}%`;
 
     if (hazard >= 85) {
-      barEl.className = 'bg-red-500 h-2.5 rounded-full transition-all duration-300';
-      prioEl.className = 'text-sm font-bold text-red-400 mt-0.5';
+      barEl.className = 'bg-red-500 h-3 rounded-full transition-all duration-300';
+      prioEl.className = 'text-base font-bold text-red-400 mt-0.5';
     } else if (hazard >= 60) {
-      barEl.className = 'bg-amber-500 h-2.5 rounded-full transition-all duration-300';
-      prioEl.className = 'text-sm font-bold text-amber-400 mt-0.5';
+      barEl.className = 'bg-amber-500 h-3 rounded-full transition-all duration-300';
+      prioEl.className = 'text-base font-bold text-amber-400 mt-0.5';
     } else {
-      barEl.className = 'bg-emerald-500 h-2.5 rounded-full transition-all duration-300';
-      prioEl.className = 'text-sm font-bold text-emerald-400 mt-0.5';
+      barEl.className = 'bg-emerald-500 h-3 rounded-full transition-all duration-300';
+      prioEl.className = 'text-base font-bold text-emerald-400 mt-0.5';
     }
 
-    // Check Duplicate Similarity in client
     const similar = APP_STATE.issues.find(i =>
       i.status !== 'Resolved' &&
       i.department === dept &&
@@ -561,7 +616,6 @@ function previewImage(event) {
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      // Compress to max dimension 800px
       const canvas = document.createElement('canvas');
       const maxDim = 800;
       let w = img.width;
@@ -634,14 +688,11 @@ async function submitGrievance(event) {
 
     showToast(`Grievance ${newIssue.id} registered successfully!`, 'success');
 
-    // Reset Form
     document.getElementById('grievance-form').reset();
     clearImagePreview();
     updateAiPreTriage();
 
     await refreshData();
-
-    // Switch to details of this newly created ticket
     openDetailsModal(newIssue.id);
   } catch (err) {
     showToast(err.message || 'Failed to file grievance', 'error');
@@ -684,9 +735,9 @@ function renderPublicFeed() {
 
   if (list.length === 0) {
     grid.innerHTML = `
-      <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-xl border border-slate-200">
-        <i data-lucide="search-x" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
-        <p class="text-sm">No grievances match the search filter.</p>
+      <div class="col-span-full py-16 text-center text-slate-400 bg-white rounded-3xl border border-slate-200">
+        <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+        <p class="text-base font-semibold">No civic grievances match the search filter.</p>
       </div>
     `;
     lucide.createIcons();
@@ -697,47 +748,54 @@ function renderPublicFeed() {
     const prioBadge = getPriorityBadgeHtml(item.priority);
     const statusBadge = getStatusBadgeHtml(item.status);
     const dateStr = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const imgUrl = item.image || getCategorySvg(item.category, item.title);
 
     return `
-      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover-card flex flex-col justify-between space-y-4">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-mono font-bold text-indigo-600">${item.id}</span>
-            <div class="flex items-center space-x-1.5">
-              ${prioBadge}
-              ${statusBadge}
-            </div>
+      <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover-card flex flex-col justify-between">
+        
+        <!-- Snapshot Frame -->
+        <div class="civic-img-frame relative cursor-pointer" onclick="openDetailsModal('${item.id}')">
+          <img src="${imgUrl}" onerror="this.src=getCategorySvg('${item.category}','${item.title}')" alt="Grievance Evidence" />
+          <div class="absolute top-3 left-3 flex items-center space-x-2">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-slate-900/80 backdrop-blur-xs text-white border border-white/20">${item.id}</span>
           </div>
-
-          <h3 class="font-bold text-slate-900 text-sm line-clamp-1 cursor-pointer hover:text-indigo-600" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</h3>
-          <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>
-
-          ${item.image ? `
-            <div class="mt-3 overflow-hidden rounded-lg border border-slate-100 max-h-36">
-              <img src="${item.image}" alt="Grievance evidence" class="w-full h-36 object-cover hover:scale-105 transition-transform duration-300" />
-            </div>
-          ` : ''}
-
-          <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span class="flex items-center space-x-1">
-              <i data-lucide="map-pin" class="w-3 h-3"></i>
-              <span class="truncate max-w-[140px]">${escapeHtml(item.location)}</span>
-            </span>
-            <span>${dateStr}</span>
+          <div class="absolute top-3 right-3 flex items-center space-x-1.5">
+            ${prioBadge}
           </div>
         </div>
 
-        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-          <button onclick="upvoteIssue('${item.id}')" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-semibold text-slate-700 transition">
-            <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500"></i>
-            <span>${item.upvotes || 1} Endorse</span>
-          </button>
+        <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between text-xs text-slate-400 font-medium mb-1.5">
+              <span class="font-bold text-indigo-600">${escapeHtml(item.department)}</span>
+              <span>${dateStr}</span>
+            </div>
 
-          <button onclick="openDetailsModal('${item.id}')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1">
-            <span>Dossier</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-          </button>
+            <h3 class="font-extrabold text-slate-900 text-base leading-snug line-clamp-1 cursor-pointer hover:text-indigo-600 transition" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span class="flex items-center space-x-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span class="truncate max-w-[160px] font-medium">${escapeHtml(item.location)}</span>
+              </span>
+              <span class="font-semibold text-slate-700">${statusBadge}</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <button onclick="upvoteIssue('${item.id}')" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-xs font-bold text-slate-700 transition">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
+              <span>${item.upvotes || 1} Endorse</span>
+            </button>
+
+            <button onclick="openDetailsModal('${item.id}')" class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 transition">
+              <span>View Dossier</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
+
       </div>
     `;
   }).join('');
@@ -775,26 +833,18 @@ function openDetailsModal(issueId) {
   document.getElementById('mdl-location').textContent = `${issue.location} · ${issue.ward || 'Central'}`;
   document.getElementById('mdl-desc').textContent = issue.description;
 
-  // Badges
   const prioEl = document.getElementById('mdl-priority-badge');
-  prioEl.className = `px-2 py-0.5 rounded text-xs font-semibold priority-${issue.priority.toLowerCase()}`;
+  prioEl.className = `px-2.5 py-1 rounded-lg text-xs font-bold priority-${issue.priority.toLowerCase()}`;
   prioEl.textContent = `${issue.priority} Urgency`;
 
   const statusEl = document.getElementById('mdl-status-badge');
-  statusEl.className = `px-2 py-0.5 rounded text-xs font-semibold badge-${issue.status.toLowerCase().replace(' ', '')}`;
+  statusEl.className = `px-2.5 py-1 rounded-lg text-xs font-bold badge-${issue.status.toLowerCase().replace(' ', '')}`;
   statusEl.textContent = issue.status;
 
-  // Photo
-  const photoBox = document.getElementById('mdl-photo-box');
   const photoImg = document.getElementById('mdl-photo');
-  if (issue.image) {
-    photoImg.src = issue.image;
-    photoBox.classList.remove('hidden');
-  } else {
-    photoBox.classList.add('hidden');
-  }
+  photoImg.src = issue.image || getCategorySvg(issue.category, issue.title);
+  photoImg.onerror = () => { photoImg.src = getCategorySvg(issue.category, issue.title); };
 
-  // Lifecycle Progress Stepper
   const steps = ['Reported', 'Dispatched', 'In Progress', 'Resolved'];
   const curIdx = steps.indexOf(issue.status);
 
@@ -803,39 +853,36 @@ function openDetailsModal(issueId) {
     if (!stepEl) return;
     const sIdx = steps.indexOf(step);
     if (sIdx <= curIdx) {
-      stepEl.className = 'py-2 px-1 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 font-bold';
+      stepEl.className = 'py-2.5 px-2 rounded-xl border border-indigo-300 bg-indigo-50 text-indigo-800 font-bold';
     } else {
-      stepEl.className = 'py-2 px-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-400';
+      stepEl.className = 'py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-400';
     }
   });
 
-  // AI Dossier
-  document.getElementById('mdl-ai-source').textContent = issue.ai?.source === 'gemini' ? 'Gemini 2.5 Flash' : 'Municipal Smart Rules';
+  document.getElementById('mdl-ai-source').textContent = issue.ai?.source === 'gemini' ? 'Gemini 2.5 Flash' : 'Municipal Smart Rules Engine';
   document.getElementById('mdl-ai-dept').textContent = issue.department;
   document.getElementById('mdl-officer').textContent = issue.assignedOfficer || 'Queued for Dispatch';
   document.getElementById('mdl-ai-reason').textContent = issue.ai?.reasoning || 'Standard triage parameters evaluated.';
   document.getElementById('mdl-ai-action').textContent = issue.ai?.suggestedAction || 'Deploy on-site engineering team.';
 
-  // Resolution Proof
   const resBox = document.getElementById('mdl-resolution-box');
   if (issue.status === 'Resolved' && issue.resolutionProof) {
     resBox.classList.remove('hidden');
-    document.getElementById('mdl-resolution-note').textContent = issue.resolutionProof.note || 'Work completed.';
+    document.getElementById('mdl-resolution-note').textContent = issue.resolutionProof.note || 'Work completed in accordance with municipal standards.';
     document.getElementById('mdl-resolution-officer').textContent = `Certified by: ${issue.resolutionProof.officerName || 'Municipal Inspector'} at ${new Date(issue.resolutionProof.resolvedAt || issue.updatedAt).toLocaleString()}`;
   } else {
     resBox.classList.add('hidden');
   }
 
-  // Audit History
   const histEl = document.getElementById('mdl-history');
   histEl.innerHTML = (issue.history || []).map(h => `
-    <div class="flex items-start space-x-2 text-slate-600 border-l-2 border-indigo-300 pl-3 py-1">
+    <div class="flex items-start space-x-3 text-slate-600 border-l-2 border-indigo-400 pl-3.5 py-1">
       <div class="flex-1">
         <div class="flex items-center space-x-2">
-          <span class="font-bold text-slate-800">${escapeHtml(h.author || 'System')}</span>
-          <span class="text-[10px] text-slate-400">${new Date(h.at).toLocaleDateString()} ${new Date(h.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span class="font-bold text-slate-900">${escapeHtml(h.author || 'System')}</span>
+          <span class="text-[11px] text-slate-400 font-medium">${new Date(h.at).toLocaleDateString()} ${new Date(h.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
-        <p class="text-xs text-slate-600 mt-0.5">${escapeHtml(h.note || '')}</p>
+        <p class="text-xs sm:text-sm text-slate-700 mt-1">${escapeHtml(h.note || '')}</p>
       </div>
     </div>
   `).join('');
@@ -849,7 +896,6 @@ function closeDetailsModal() {
   APP_STATE.selectedIssueId = null;
 }
 
-// Add citizen comment to issue
 async function postCitizenComment() {
   const input = document.getElementById('comment-input');
   const comment = input?.value.trim();
@@ -869,7 +915,6 @@ async function postCitizenComment() {
   }
 }
 
-// Upvote Grievance
 async function upvoteIssue(issueId) {
   try {
     const res = await apiRequest(`/api/issues/${issueId}/upvote`, { method: 'POST' });
@@ -988,7 +1033,6 @@ async function submitAdminLogin() {
       closeAdminModal();
       showToast('Municipal Officer Console Unlocked!', 'success');
 
-      // If an issue was pending action, open it
       if (APP_STATE.selectedIssueId) {
         openOfficerActionModal(APP_STATE.selectedIssueId);
       }
@@ -1002,10 +1046,10 @@ function updateAuthUI() {
   const btn = document.getElementById('btn-officer-auth');
   const txt = document.getElementById('officer-btn-text');
   if (APP_STATE.isAdmin) {
-    btn.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition';
+    btn.className = 'flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition';
     txt.textContent = 'Officer Session Active';
   } else {
-    btn.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition';
+    btn.className = 'flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition';
     txt.textContent = 'Officer Portal';
   }
   lucide.createIcons();
@@ -1040,25 +1084,25 @@ function escapeHtml(str) {
 
 function getPriorityBadgeHtml(priority) {
   const p = (priority || 'Medium').toLowerCase();
-  return `<span class="px-2 py-0.5 rounded text-[11px] font-semibold priority-${p}">${priority}</span>`;
+  return `<span class="px-2.5 py-1 rounded-lg text-xs font-bold priority-${p}">${priority}</span>`;
 }
 
 function getStatusBadgeHtml(status) {
   const s = (status || 'Reported').toLowerCase().replace(' ', '');
-  return `<span class="px-2 py-0.5 rounded text-[11px] font-semibold badge-${s}">${status}</span>`;
+  return `<span class="px-2.5 py-1 rounded-lg text-xs font-bold badge-${s}">${status}</span>`;
 }
 
 function getSlaBadgeHtml(slaStatus) {
   if (slaStatus === 'Breached') {
-    return `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">SLA BREACH</span>`;
+    return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">SLA BREACH</span>`;
   }
   if (slaStatus === 'Approaching Breach') {
-    return `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">SLA &lt;12H</span>`;
+    return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">SLA &lt;12H</span>`;
   }
   if (slaStatus === 'Met') {
-    return `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">SLA MET</span>`;
+    return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">SLA MET</span>`;
   }
-  return `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-500">On Time</span>`;
+  return `<span class="px-2 py-0.5 rounded-md text-[11px] font-medium text-slate-500">On Time</span>`;
 }
 
 function showToast(message, type = 'info') {
@@ -1066,23 +1110,21 @@ function showToast(message, type = 'info') {
   if (!container) return;
 
   const toast = document.createElement('div');
-  const bg = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-600' : 'bg-slate-900';
-  toast.className = `${bg} text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-lg flex items-center space-x-2 transition-all transform duration-300 opacity-0 translate-y-2`;
+  const bg = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
+  toast.className = `${bg} text-white px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-xl flex items-center space-x-2.5 transition-all transform duration-300 opacity-0 translate-y-3`;
 
   const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info';
-  toast.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4"></i><span>${escapeHtml(message)}</span>`;
+  toast.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 shrink-0"></i><span>${escapeHtml(message)}</span>`;
 
   container.appendChild(toast);
   lucide.createIcons();
 
-  // Animate in
   setTimeout(() => {
-    toast.classList.remove('opacity-0', 'translate-y-2');
+    toast.classList.remove('opacity-0', 'translate-y-3');
   }, 10);
 
-  // Animate out
   setTimeout(() => {
-    toast.classList.add('opacity-0', 'translate-y-2');
+    toast.classList.add('opacity-0', 'translate-y-3');
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }

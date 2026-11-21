@@ -1,5 +1,5 @@
 // CivicPulse Enterprise - AI-Powered Municipal Grievance & Command Center
-// Built for Node 18+ (zero-dependency native HTTP & crypto)
+// Node 18+ (zero-dependency native HTTP & crypto)
 
 const http = require('http');
 const fs = require('fs');
@@ -72,6 +72,38 @@ const SLA_HOURS_MAP = {
   'Low': 240         // 10 days
 };
 
+// High-Fidelity SVG Graphic Snapshot Generator (Guarantees zero broken images on all networks)
+function getCategorySvg(category, title) {
+  const t = (title || category || '').toLowerCase();
+  
+  if (/pothole|road|crater|asphalt/.test(t) || category.includes('Road')) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><path d="M0 240 Q150 200 300 240 T600 240 L600 360 L0 360 Z" fill="%230f172a"/><path d="M120 270 Q240 230 380 275 Q420 310 320 330 Q180 320 120 270 Z" fill="%23020617" stroke="%23334155" stroke-width="4"/><path d="M160 280 L220 290 L260 285 L330 300 L280 315 L200 305 Z" fill="%23090d16"/><polygon points="460,330 490,330 480,240 470,240" fill="%23ea580c"/><polygon points="464,305 486,305 483,280 467,280" fill="%23ffffff"/><polygon points="466,270 484,270 482,255 468,255" fill="%23ffffff"/><polygon points="120,330 150,330 140,240 130,240" fill="%23ea580c"/><polygon points="124,305 146,305 143,280 127,280" fill="%23ffffff"/><circle cx="530" cy="60" r="32" fill="%23ef4444" opacity="0.9"/><text x="530" y="68" font-family="Arial,sans-serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle">!</text><rect x="30" y="30" width="220" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%2338bdf8">ROAD DAMAGE REPORT</text></svg>`;
+  }
+  
+  if (/manhole|drain|flood|pit/.test(t) || category.includes('Manhole') || category.includes('Drain')) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%23334155"/><ellipse cx="300" cy="240" rx="180" ry="70" fill="%23020617" stroke="%23dc2626" stroke-width="6"/><ellipse cx="300" cy="240" rx="140" ry="50" fill="%23000000"/><line x1="140" y1="240" x2="460" y2="240" stroke="%23ef4444" stroke-width="3" stroke-dasharray="8 8"/><line x1="300" y1="180" x2="300" y2="300" stroke="%23ef4444" stroke-width="3" stroke-dasharray="8 8"/><rect x="80" y="160" width="440" height="24" fill="%23facc15" stroke="%23000" stroke-width="2"/><line x1="110" y1="160" x2="90" y2="184" stroke="%23000" stroke-width="8"/><line x1="170" y1="160" x2="150" y2="184" stroke="%23000" stroke-width="8"/><line x1="230" y1="160" x2="210" y2="184" stroke="%23000" stroke-width="8"/><line x1="290" y1="160" x2="270" y2="184" stroke="%23000" stroke-width="8"/><line x1="350" y1="160" x2="330" y2="184" stroke="%23000" stroke-width="8"/><line x1="410" y1="160" x2="390" y2="184" stroke="%23000" stroke-width="8"/><line x1="470" y1="160" x2="450" y2="184" stroke="%23000" stroke-width="8"/><rect x="30" y="30" width="240" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23ef4444">CRITICAL MANHOLE PIT</text></svg>`;
+  }
+
+  if (/wire|electric|spark|shock|light|pole/.test(t) || category.includes('Light') || category.includes('Electric')) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%23090d16"/><line x1="120" y1="40" x2="120" y2="360" stroke="%2364748b" stroke-width="12"/><line x1="60" y1="90" x2="180" y2="90" stroke="%2364748b" stroke-width="8"/><path d="M120 90 Q300 180 480 120" stroke="%2338bdf8" stroke-width="4" fill="none"/><path d="M120 90 Q240 260 340 310" stroke="%23facc15" stroke-width="5" fill="none"/><polygon points="340,310 325,280 345,285 335,260 365,295 345,295 360,320" fill="%23fef08a"/><circle cx="340" cy="310" r="28" fill="%23facc15" opacity="0.4"/><circle cx="340" cy="310" r="14" fill="%23ffffff"/><rect x="30" y="30" width="240" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23facc15">ELECTRICAL ARC HAZARD</text></svg>`;
+  }
+
+  if (/water|pipe|leak|burst|sewage/.test(t) || category.includes('Water') || category.includes('Sewage')) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><rect x="0" y="220" width="600" height="140" fill="%230f172a"/><rect x="0" y="270" width="600" height="40" fill="%230284c7" opacity="0.8"/><ellipse cx="300" cy="270" rx="90" ry="25" fill="%2338bdf8"/><path d="M280 270 Q240 120 300 70 Q360 120 320 270 Z" fill="%230284c7" opacity="0.65"/><path d="M290 270 Q270 140 300 90 Q330 140 310 270 Z" fill="%237dd3fc" opacity="0.9"/><circle cx="300" cy="70" r="12" fill="%23ffffff"/><circle cx="260" cy="130" r="8" fill="%23bae6fd"/><circle cx="340" cy="140" r="9" fill="%23bae6fd"/><rect x="30" y="30" width="250" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%2338bdf8">WATER MAIN PIPE BURST</text></svg>`;
+  }
+
+  if (/garbage|waste|dump|trash|bin/.test(t) || category.includes('Garbage') || category.includes('Waste')) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><rect x="180" y="160" width="240" height="160" rx="8" fill="%23047857"/><rect x="160" y="140" width="280" height="24" rx="4" fill="%23065f46"/><path d="M190 140 Q250 80 300 120 Q360 70 410 140 Z" fill="%23475569"/><circle cx="250" cy="100" r="22" fill="%23334155"/><circle cx="340" cy="95" r="26" fill="%2364748b"/><polygon points="210,140 250,70 280,140" fill="%23cbd5e1"/><ellipse cx="200" cy="330" rx="40" ry="15" fill="%231e293b"/><ellipse cx="400" cy="330" rx="40" ry="15" fill="%231e293b"/><rect x="30" y="30" width="250" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23f59e0b">MUNICIPAL REFUSE OVERFLOW</text></svg>`;
+  }
+
+  if (/signal|traffic|sign/.test(t) || category.includes('Traffic') || category.includes('Signal')) {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%230f172a"/><rect x="240" y="40" width="120" height="260" rx="16" fill="%231e293b" stroke="%23475569" stroke-width="4"/><circle cx="300" cy="95" r="28" fill="%23334155"/><circle cx="300" cy="170" r="32" fill="%23f59e0b" filter="drop-shadow(0 0 16px %23f59e0b)"/><circle cx="300" cy="245" r="28" fill="%23334155"/><rect x="290" y="300" width="20" height="60" fill="%23475569"/><rect x="30" y="30" width="240" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%23f59e0b">SIGNAL MALFUNCTION</text></svg>`;
+  }
+
+  // Default Vector Snapshot for civic grievances
+  return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360"><rect width="600" height="360" fill="%231e293b"/><circle cx="300" cy="180" r="100" fill="%23334155" opacity="0.5"/><path d="M250 140 L350 140 L300 240 Z" fill="%23f59e0b"/><rect x="30" y="30" width="260" height="36" rx="6" fill="%230f172a" opacity="0.85"/><text x="42" y="54" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="%236366f1">CIVIC MONITORING SNAPSHOT</text></svg>`;
+}
+
 // In-Memory / File Storage Helpers
 function loadData() {
   try {
@@ -113,7 +145,6 @@ function logAudit(action, actor, details) {
       actor: actor || 'Municipal Officer',
       details
     });
-    // keep latest 200 logs
     if (logs.length > 200) logs.length = 200;
     fs.writeFileSync(AUDIT_FILE, JSON.stringify(logs, null, 2), 'utf8');
   } catch (e) {
@@ -121,7 +152,6 @@ function logAudit(action, actor, details) {
   }
 }
 
-// Compute dynamic SLA status
 function getSlaStatus(issue) {
   if (issue.status === 'Resolved') return 'Met';
   const now = Date.now();
@@ -132,32 +162,28 @@ function getSlaStatus(issue) {
   return 'On Schedule';
 }
 
-// Advanced Gemini AI Analysis with Enhanced Smart Fallback Engine
+// Gemini AI & Smart Rules Engine
 async function analyzeComplaint({ title, description, location, citizenCategory, image, existingIssues = [] }) {
   const isKeyValid = GEMINI_API_KEY && GEMINI_API_KEY !== 'your_key_from_aistudio.google.com';
   
   if (isKeyValid) {
     try {
-      const prompt = `You are the chief AI triage director for a smart city municipal corporation.
-Analyze this citizen grievance complaint accurately:
+      const prompt = `You are chief AI triage officer for an urban municipal corporation. Analyze:
 Title: "${title}"
 Description: "${description}"
 Location: "${location}"
 Citizen-suggested category: "${citizenCategory || 'Unspecified'}"
 
-Evaluate against the official municipal departments:
-${JSON.stringify(DEPARTMENTS)}
+Official Departments: ${JSON.stringify(DEPARTMENTS)}
+Official Categories: ${JSON.stringify(CATEGORIES)}
 
-And official categories:
-${JSON.stringify(CATEGORIES)}
+Priority:
+- Critical: Immediate threat to life/safety (open manholes, live wires, severe structural collapse). SLA 24h.
+- High: Serious hazard, water main break, blocked arterial road, hospital/school area health issue. SLA 48h.
+- Medium: Standard pothole, residential streetlight, scheduled bin clearance. SLA 120h.
+- Low: Minor park aesthetic or signage issue. SLA 240h.
 
-Priority criteria:
-- "Critical": Imminent threat to life, pedestrian safety, live high-voltage electric wires, open manholes on main roads, collapsed structures, severe toxic chemical/sewage spill. SLA: 24h.
-- "High": Major road crater/pothole causing accident risk, drinking water main break, massive garbage heap near school/hospital, non-working traffic signal at busy intersection. SLA: 48h.
-- "Medium": Typical street potholes, dark streetlight in residential lane, overgrown branches touching cable lines, regular bin clearance delay. SLA: 120h.
-- "Low": Faded signage, minor aesthetic park issue, scheduled tree pruning, non-obstructive debris. SLA: 240h.
-
-Return strict JSON only (no markdown, no backticks, just raw JSON):
+Return strict JSON only (no markdown, no backticks):
 {
   "category": "exact match from official categories",
   "priority": "Critical" | "High" | "Medium" | "Low",
@@ -172,58 +198,45 @@ Return strict JSON only (no markdown, no backticks, just raw JSON):
 }`;
 
       const parts = [{ text: prompt }];
-      if (image && typeof image === 'string') {
+      if (image && typeof image === 'string' && image.startsWith('data:image')) {
         const match = image.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
         if (match) {
           parts.push({
-            inline_data: {
-              mime_type: match[1],
-              data: match[2]
-            }
+            inline_data: { mime_type: match[1], data: match[2] }
           });
         }
       }
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY
-        },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_API_KEY },
         body: JSON.stringify({
           contents: [{ parts }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.15
-          }
+          generationConfig: { responseMimeType: 'application/json', temperature: 0.15 }
         })
       });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Gemini API HTTP ${res.status}: ${errText.slice(0, 150)}`);
-      }
-
-      const data = await res.json();
-      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (rawText) {
-        const parsed = JSON.parse(rawText.trim());
-        if (!CATEGORIES.includes(parsed.category)) parsed.category = CATEGORIES[0];
-        if (!DEPARTMENTS.includes(parsed.department)) parsed.department = DEPARTMENTS[0];
-        if (!['Critical', 'High', 'Medium', 'Low'].includes(parsed.priority)) parsed.priority = 'Medium';
-        parsed.slaHours = parsed.slaHours || SLA_HOURS_MAP[parsed.priority] || 48;
-        parsed.source = 'gemini';
-        parsed.model = GEMINI_MODEL;
-        return checkDuplicates(parsed, title, description, location, existingIssues);
+      if (res.ok) {
+        const data = await res.json();
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (rawText) {
+          const parsed = JSON.parse(rawText.trim());
+          if (!CATEGORIES.includes(parsed.category)) parsed.category = CATEGORIES[0];
+          if (!DEPARTMENTS.includes(parsed.department)) parsed.department = DEPARTMENTS[0];
+          if (!['Critical', 'High', 'Medium', 'Low'].includes(parsed.priority)) parsed.priority = 'Medium';
+          parsed.slaHours = parsed.slaHours || SLA_HOURS_MAP[parsed.priority] || 48;
+          parsed.source = 'gemini';
+          parsed.model = GEMINI_MODEL;
+          return checkDuplicates(parsed, title, description, location, existingIssues);
+        }
       }
     } catch (e) {
-      console.warn('Gemini analysis failed or bypassed. Executing Municipal Rules Triage Engine:', e.message);
+      console.warn('Gemini analysis bypassed/failed, falling back to smart rules:', e.message);
     }
   }
 
-  // High-Precision Civic Knowledge Rules Fallback Engine
+  // Robust Rules Fallback Engine
   const text = `${title} ${description} ${location}`.toLowerCase();
-  
   let dept = DEPARTMENTS[0];
   let cat = CATEGORIES[0];
   let priority = 'Medium';
@@ -240,18 +253,18 @@ Return strict JSON only (no markdown, no backticks, just raw JSON):
     action = 'Immediate cordoning of hazard area followed by vacuum de-silting and heavy-duty slab installation.';
     impact = 'Pedestrians, two-wheeler riders, and flood-prone ground floor households.';
     days = priority === 'Critical' ? 1 : 3;
-  } else if (/electric|wire|spark|transformer|shock|current|streetlight|lamp|pole|darkness|light/.test(text)) {
+  } else if (/electric|wire|spark|transformer|shock|current|streetlight|lamp|pole|darkness/.test(text)) {
     dept = 'Street Lighting & Electricity';
-    cat = /wire|spark|shock|pole/.test(text) ? 'Broken / Non-Functional Streetlight' : 'Broken / Non-Functional Streetlight';
+    cat = 'Broken / Non-Functional Streetlight';
     priority = /spark|live wire|hanging|shock|fire|current/.test(text) ? 'Critical' : (/dark|accident|crime|night/.test(text) ? 'High' : 'Medium');
     hazardScore = priority === 'Critical' ? 98 : 60;
     action = 'Deploy electrical emergency response van to isolate high-voltage line and restore public illumination.';
-    impact = 'Night commuters, women and senior citizen pedestrian safety, and vehicular traffic visibility.';
+    impact = 'Night commuters, pedestrian safety, and vehicular traffic visibility.';
     days = priority === 'Critical' ? 1 : 2;
-  } else if (/garbage|waste|dump|trash|bin|stench|litter|debris|dead animal|carcass/.test(text)) {
+  } else if (/garbage|waste|dump|trash|bin|stench|litter|debris/.test(text)) {
     dept = 'Sanitation & Solid Waste';
     cat = 'Garbage Dump / Overflowing Bins';
-    priority = /hospital|school|market|choking|rot|medical/.test(text) ? 'High' : 'Medium';
+    priority = /hospital|school|market|choking|rot/.test(text) ? 'High' : 'Medium';
     hazardScore = priority === 'High' ? 70 : 40;
     action = 'Dispatch compact hydraulic compactor vehicle and sanitize ground with lime powder disinfectants.';
     impact = 'Neighborhood hygiene, public health of nearby educational/residential complexes.';
@@ -262,31 +275,31 @@ Return strict JSON only (no markdown, no backticks, just raw JSON):
     priority = /burst|flood|contaminat|drinking|foul/.test(text) ? 'High' : 'Medium';
     hazardScore = priority === 'High' ? 80 : 50;
     action = 'Isolate feeder valve to arrest wastage; deploy pipeline weld crew and pressure testing team.';
-    impact = 'Potable drinking water supply for approximately 250+ connected households.';
+    impact = 'Potable drinking water supply for connected households in this ward sector.';
     days = priority === 'High' ? 2 : 4;
-  } else if (/pothole|road|crater|asphalt|tar|speed breaker|divider/.test(text)) {
+  } else if (/pothole|road|crater|asphalt|tar|speed breaker/.test(text)) {
     dept = 'Roads & Public Works';
     cat = 'Pothole / Road Surface Damage';
-    priority = /accident|deep|main road|highway|bus|skid|death/.test(text) ? 'High' : 'Medium';
+    priority = /accident|deep|main road|highway|bus|skid/.test(text) ? 'High' : 'Medium';
     hazardScore = priority === 'High' ? 75 : 45;
     action = 'Mobilize rapid cold-mix asphalt patching team with road roller compaction within SLA.';
-    impact = 'Motorists, cyclists, and peak-hour public transit flow along primary arterial corridor.';
+    impact = 'Motorists, cyclists, and peak-hour public transit flow along primary corridor.';
     days = priority === 'High' ? 2 : 5;
-  } else if (/tree|branch|park|garden|plant|grass/.test(text)) {
+  } else if (/tree|branch|park|garden/.test(text)) {
     dept = 'Parks, Gardens & Horticulture';
     cat = 'Fallen Tree / Hazardous Branches';
-    priority = /fallen|blocked|roof|wire|crush/.test(text) ? 'High' : 'Low';
+    priority = /fallen|blocked|roof|crush/.test(text) ? 'High' : 'Low';
     hazardScore = priority === 'High' ? 70 : 30;
     action = 'Deploy horticultural chainsaw team to clear transit corridor and recycle green biomass.';
     days = priority === 'High' ? 2 : 7;
-  } else if (/signal|traffic|sign|jam|zebra/.test(text)) {
+  } else if (/signal|traffic|sign/.test(text)) {
     dept = 'Traffic, Signage & Mobility';
     cat = 'Faulty Traffic Signal / Missing Signage';
     priority = 'High';
     hazardScore = 80;
     action = 'Traffic police coordination & immediate signal PLC controller reset and lens replacement.';
     days = 2;
-  } else if (/dengue|malaria|mosquito|fogging|epidemic|health/.test(text)) {
+  } else if (/dengue|malaria|mosquito|fogging|health/.test(text)) {
     dept = 'Public Health & Vector Control';
     cat = 'Mosquito Breeding / Stagnant Water / Dengue Hazard';
     priority = 'High';
@@ -302,7 +315,7 @@ Return strict JSON only (no markdown, no backticks, just raw JSON):
     department: dept,
     confidence: isKeyValid ? 0.94 : 0.88,
     hazardScore,
-    reasoning: `Categorized under ${cat} based on civic safety keywords and municipal domain indexing. Priority evaluated as ${priority}.`,
+    reasoning: `Categorized under ${cat} based on civic safety criteria. Evaluated at ${priority} urgency rating.`,
     publicImpact: impact,
     suggestedAction: action,
     estimatedResolutionDays: days,
@@ -313,7 +326,6 @@ Return strict JSON only (no markdown, no backticks, just raw JSON):
   return checkDuplicates(analysisResult, title, description, location, existingIssues);
 }
 
-// Duplicate Detection & Clustering Engine
 function checkDuplicates(aiResult, title, desc, location, existingIssues) {
   if (!existingIssues || existingIssues.length === 0) {
     aiResult.duplicateDetected = false;
@@ -321,9 +333,7 @@ function checkDuplicates(aiResult, title, desc, location, existingIssues) {
     return aiResult;
   }
 
-  const normText = `${title} ${desc}`.toLowerCase();
   const normLoc = location.toLowerCase();
-
   const candidates = existingIssues.filter(other => {
     if (other.status === 'Resolved') return false;
     const sameDept = other.department === aiResult.department;
@@ -343,9 +353,7 @@ function checkDuplicates(aiResult, title, desc, location, existingIssues) {
   return aiResult;
 }
 
-// Coordinates helper for maps
 function getGeoCoordinates(ward, index = 0) {
-  // Base coordinates around City Center (Metro zone)
   const baseLat = 13.0827;
   const baseLng = 80.2707;
   const offsets = [
@@ -360,11 +368,10 @@ function getGeoCoordinates(ward, index = 0) {
   };
 }
 
-// Seed initial realistic municipal data if empty
+// Seed initial realistic municipal data with guaranteed vector illustrations
 function seedInitialData() {
   const now = Date.now();
   const hour = 3600 * 1000;
-  const day = 24 * hour;
 
   const sampleIssues = [
     {
@@ -374,7 +381,7 @@ function seedInitialData() {
       location: 'Opposite Metro Pillar #142, Highline Road',
       ward: 'Ward 07 - Tech Corridor & Highline',
       coordinates: { lat: 13.0947, lng: 80.2887 },
-      image: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
+      image: getCategorySvg('Pothole / Road Surface Damage', 'Massive Crater Pothole on Highline Arterial Lane'),
       citizenCategory: 'Pothole / Road Surface Damage',
       category: 'Pothole / Road Surface Damage',
       priority: 'High',
@@ -418,7 +425,7 @@ function seedInitialData() {
       location: 'Gate 2, Vidya Mandir School, Old Bazaar Rd',
       ward: 'Ward 04 - Old Central Market',
       coordinates: { lat: 13.0677, lng: 80.2587 },
-      image: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=600&auto=format&fit=crop&q=80',
+      image: getCategorySvg('Open Manhole / Uncovered Utility Pit', 'Uncovered Stormwater Manhole Outside Primary School'),
       citizenCategory: 'Open Manhole / Uncovered Utility Pit',
       category: 'Open Manhole / Uncovered Utility Pit',
       priority: 'Critical',
@@ -451,9 +458,7 @@ function seedInitialData() {
         { status: 'Dispatched', at: now - 18 * hour, note: 'Emergency barriers dispatched via fast-response squad.', author: 'Chief Dispatcher' },
         { status: 'In Progress', at: now - 6 * hour, note: 'Temporary steel cover placed. Permanent reinforced locking cover arriving at 2 PM.', author: 'S. K. Murthy' }
       ],
-      internalNotes: [
-        { at: now - 17 * hour, note: 'Contacted steel fabrication yard for custom 36-inch anti-theft locking hinge.', author: 'S. K. Murthy' }
-      ]
+      internalNotes: []
     },
     {
       id: 'CR-1003',
@@ -462,7 +467,7 @@ function seedInitialData() {
       location: 'Behind Fish Market, Ward 01 Promenade',
       ward: 'Ward 01 - North Gateway & Harborside',
       coordinates: { lat: 13.1067, lng: 80.2887 },
-      image: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=600&auto=format&fit=crop&q=80',
+      image: getCategorySvg('Garbage Dump / Overflowing Bins', 'Overflowing Municipal Garbage Skip with Stagnant Leachate'),
       citizenCategory: 'Garbage Dump / Overflowing Bins',
       category: 'Garbage Dump / Overflowing Bins',
       priority: 'High',
@@ -503,7 +508,7 @@ function seedInitialData() {
       location: 'Corner of Cross St #4 and Palm Avenue',
       ward: 'Ward 12 - South Lake & Green Meadows',
       coordinates: { lat: 13.0617, lng: 80.2457 },
-      image: null,
+      image: getCategorySvg('Broken / Non-Functional Streetlight', 'Sparking Overhead Electric Cable Tangled in Tree Canopy'),
       citizenCategory: 'Broken / Non-Functional Streetlight',
       category: 'Broken / Non-Functional Streetlight',
       priority: 'Critical',
@@ -542,9 +547,7 @@ function seedInitialData() {
         { status: 'In Progress', at: now - 20 * hour, note: 'Cherry picker crane arrived on scene with tree cutter squad.', author: 'K. Prabhakar' },
         { status: 'Resolved', at: now - 2 * hour, note: 'Cable re-tensioned and insulated. Tree limbs safely trimmed.', author: 'K. Prabhakar' }
       ],
-      internalNotes: [
-        { at: now - 3 * hour, note: 'Joint certification signed with resident welfare secretary.', author: 'K. Prabhakar' }
-      ]
+      internalNotes: []
     },
     {
       id: 'CR-1005',
@@ -553,7 +556,7 @@ function seedInitialData() {
       location: 'Near Metro Transit Station East Exit',
       ward: 'Ward 18 - Metro Transit Junction',
       coordinates: { lat: 13.0857, lng: 80.2727 },
-      image: 'https://images.unsplash.com/photo-1541888946425-d0fbb1861593?w=600&auto=format&fit=crop&q=80',
+      image: getCategorySvg('Water Supply Pipe Leak / Low Pressure', 'Underground Potable Water Main Rupture Flooding Lane'),
       citizenCategory: 'Water Supply Pipe Leak / Low Pressure',
       category: 'Water Supply Pipe Leak / Low Pressure',
       priority: 'High',
@@ -595,7 +598,7 @@ function seedInitialData() {
       location: 'Ring Road 100ft Junction & University Ave',
       ward: 'Ward 22 - University Campus & Hospital Hub',
       coordinates: { lat: 13.1147, lng: 80.2917 },
-      image: null,
+      image: getCategorySvg('Faulty Traffic Signal / Missing Signage', 'Traffic Signal Stuck on Amber at 4-Way Intersection'),
       citizenCategory: 'Faulty Traffic Signal / Missing Signage',
       category: 'Faulty Traffic Signal / Missing Signage',
       priority: 'High',
@@ -635,7 +638,7 @@ function seedInitialData() {
       location: 'Plot #19B, Health Center Lane, Riverbank East',
       ward: 'Ward 27 - Riverbank East',
       coordinates: { lat: 13.0777, lng: 80.2387 },
-      image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80',
+      image: getCategorySvg('Mosquito Breeding / Stagnant Water / Dengue Hazard', 'Stagnant Water Reservoir Breeding Mosquitoes near Health Center'),
       citizenCategory: 'Mosquito Breeding / Stagnant Water / Dengue Hazard',
       category: 'Mosquito Breeding / Stagnant Water / Dengue Hazard',
       priority: 'High',
@@ -722,13 +725,12 @@ function verifyAdmin(req) {
   return pinHeader === ADMIN_PIN || token === ADMIN_PIN || token === 'admin-session-active';
 }
 
-// Request Router
+// HTTP Request Router
 const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
   const method = req.method;
 
-  // Handle CORS preflight
   if (method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
@@ -779,13 +781,14 @@ const server = http.createServer(async (req, res) => {
 
       let data = loadData();
 
-      // Recalculate SLA status dynamically
       data = data.map(item => ({
         ...item,
-        slaStatus: getSlaStatus(item)
+        slaStatus: getSlaStatus(item),
+        // Ensure image is never missing
+        image: item.image || getCategorySvg(item.category || '', item.title || '')
       }));
 
-      // Filtering
+      // Filter
       if (query) {
         data = data.filter(i =>
           i.id.toLowerCase().includes(query) ||
@@ -802,7 +805,7 @@ const server = http.createServer(async (req, res) => {
       if (department) data = data.filter(i => i.department === department);
       if (ward) data = data.filter(i => i.ward === ward);
 
-      // Sorting
+      // Sorter
       if (sortBy === 'newest') data.sort((a, b) => b.createdAt - a.createdAt);
       else if (sortBy === 'oldest') data.sort((a, b) => a.createdAt - b.createdAt);
       else if (sortBy === 'upvotes') data.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
@@ -841,6 +844,9 @@ const server = http.createServer(async (req, res) => {
       const slaHours = ai.slaHours || SLA_HOURS_MAP[ai.priority] || 48;
       const slaDeadline = now + (slaHours * 3600 * 1000);
 
+      // If no photo was attached, generate high-fidelity vector illustration
+      const imagePayload = body.image || getCategorySvg(ai.category, body.title);
+
       const newIssue = {
         id: newId,
         title: body.title.trim(),
@@ -848,7 +854,7 @@ const server = http.createServer(async (req, res) => {
         location: body.location.trim(),
         ward,
         coordinates: coords,
-        image: body.image || null,
+        image: imagePayload,
         citizenCategory: body.category || '',
         category: ai.category,
         priority: ai.priority,
@@ -886,7 +892,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 5. Upvote Issue ("I am affected too")
+    // 5. Upvote Issue
     const upvoteMatch = pathname.match(/^\/api\/issues\/([\w-]+)\/upvote$/);
     if (upvoteMatch && method === 'POST') {
       const issueId = upvoteMatch[1];
@@ -899,7 +905,7 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, upvotes: issue.upvotes });
     }
 
-    // 6. Add Citizen Comment / Community Observation
+    // 6. Citizen Observation Comment
     const commentMatch = pathname.match(/^\/api\/issues\/([\w-]+)\/comment$/);
     if (commentMatch && method === 'POST') {
       const issueId = commentMatch[1];
@@ -934,7 +940,11 @@ const server = http.createServer(async (req, res) => {
       if (method === 'GET') {
         if (issueIndex === -1) return sendJson(res, 404, { error: 'Grievance record not found' });
         const issue = issues[issueIndex];
-        return sendJson(res, 200, { ...issue, slaStatus: getSlaStatus(issue) });
+        return sendJson(res, 200, {
+          ...issue,
+          slaStatus: getSlaStatus(issue),
+          image: issue.image || getCategorySvg(issue.category, issue.title)
+        });
       }
 
       if (method === 'DELETE') {
@@ -954,7 +964,6 @@ const server = http.createServer(async (req, res) => {
         const issue = issues[issueIndex];
         const now = Date.now();
 
-        // Update fields if provided
         if (body.department && DEPARTMENTS.includes(body.department)) issue.department = body.department;
         if (body.priority && ['Critical', 'High', 'Medium', 'Low'].includes(body.priority)) {
           issue.priority = body.priority;
@@ -963,7 +972,6 @@ const server = http.createServer(async (req, res) => {
         if (body.category) issue.category = body.category;
         if (body.assignedOfficer) issue.assignedOfficer = body.assignedOfficer;
 
-        // Status update
         if (body.status && body.status !== issue.status) {
           const oldStatus = issue.status;
           issue.status = body.status;
@@ -972,8 +980,8 @@ const server = http.createServer(async (req, res) => {
           if (body.status === 'Resolved') {
             issue.resolvedAt = now;
             issue.resolutionProof = {
-              note: body.note || 'Work completed as per municipal standard guidelines.',
-              officerName: body.assignedOfficer || issue.assignedOfficer || 'Municipal Field Officer',
+              note: body.note || 'Work completed in accordance with municipal guidelines.',
+              officerName: body.assignedOfficer || issue.assignedOfficer || 'Municipal Field Engineer',
               resolvedAt: now
             };
           }
@@ -995,7 +1003,6 @@ const server = http.createServer(async (req, res) => {
           });
         }
 
-        // Internal note
         if (body.internalNote) {
           if (!issue.internalNotes) issue.internalNotes = [];
           issue.internalNotes.push({
@@ -1025,7 +1032,6 @@ const server = http.createServer(async (req, res) => {
       const mediumCount = data.filter(i => i.priority === 'Medium').length;
       const lowCount = data.filter(i => i.priority === 'Low').length;
 
-      // SLA Compliance calculation
       let slaBreached = 0;
       let slaApproaching = 0;
       let slaMetOrOnTime = 0;
@@ -1037,26 +1043,22 @@ const server = http.createServer(async (req, res) => {
       });
       const slaComplianceRate = total > 0 ? Math.round(((total - slaBreached) / total) * 100) : 100;
 
-      // Department breakdown
       const byDepartment = {};
       DEPARTMENTS.forEach(d => { byDepartment[d] = 0; });
       data.forEach(i => {
         if (byDepartment[i.department] !== undefined) byDepartment[i.department]++;
       });
 
-      // Category breakdown
       const byCategory = {};
       data.forEach(i => {
         byCategory[i.category] = (byCategory[i.category] || 0) + 1;
       });
 
-      // Ward distribution
       const byWard = {};
       data.forEach(i => {
         if (i.ward) byWard[i.ward] = (byWard[i.ward] || 0) + 1;
       });
 
-      // Average resolution duration (hours)
       const resolvedIssues = data.filter(i => i.status === 'Resolved' && i.resolvedAt);
       const avgResolutionHours = resolvedIssues.length > 0
         ? Math.round(resolvedIssues.reduce((acc, curr) => acc + ((curr.resolvedAt - curr.createdAt) / (3600 * 1000)), 0) / resolvedIssues.length)
