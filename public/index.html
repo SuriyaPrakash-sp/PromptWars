@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicPulse Enterprise | Smart Municipal AI Command & Grievance Redressal</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            civic: {
+              slate: '#0f172a',
+              card: '#ffffff',
+              border: '#e2e8f0',
+              accent: '#0284c7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Leaflet CSS & JS for Civic Spatial Explorer -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- ================= TOP APP BAR / NAVIGATION ================= -->
+  <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Brand & Crest -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <i data-lucide="shield-alert" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-lg tracking-tight text-white">CivicPulse</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">Enterprise v2.5</span>
+            </div>
+            <p class="text-xs text-slate-400">Municipal Grievance AI & Operations Command</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs Bar -->
+        <nav class="hidden md:flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-tab active flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white bg-slate-700">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Command Center</span>
+          </button>
+          <button onclick="switchTab('map')" id="tab-btn-map" class="nav-tab flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:text-white">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <span>Spatial Map</span>
+          </button>
+          <button onclick="switchTab('report')" id="tab-btn-report" class="nav-tab flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:text-white">
+            <i data-lucide="file-plus-2" class="w-4 h-4"></i>
+            <span>File Grievance</span>
+          </button>
+          <button onclick="switchTab('tracker')" id="tab-btn-tracker" class="nav-tab flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:text-white">
+            <i data-lucide="list-checks" class="w-4 h-4"></i>
+            <span>Public Tracker</span>
+          </button>
+        </nav>
+
+        <!-- Right System Controls -->
+        <div class="flex items-center space-x-3">
+          <!-- Gemini AI Pulse Status -->
+          <div id="ai-status-badge" class="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span id="ai-status-text" class="text-slate-300 font-mono text-[11px]">Gemini 2.5 Active</span>
+          </div>
+
+          <!-- Officer Access Trigger -->
+          <div id="auth-section">
+            <button onclick="openAdminModal()" id="btn-officer-auth" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition">
+              <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+              <span id="officer-btn-text">Officer Portal</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile Nav Bar -->
+    <div class="md:hidden flex items-center justify-around bg-slate-800 border-t border-slate-700 py-2 px-2">
+      <button onclick="switchTab('dashboard')" class="flex flex-col items-center text-[10px] text-slate-300 font-medium">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 mb-0.5"></i> Dashboard
+      </button>
+      <button onclick="switchTab('map')" class="flex flex-col items-center text-[10px] text-slate-300 font-medium">
+        <i data-lucide="map-pin" class="w-4 h-4 mb-0.5"></i> Map
+      </button>
+      <button onclick="switchTab('report')" class="flex flex-col items-center text-[10px] text-slate-300 font-medium">
+        <i data-lucide="file-plus-2" class="w-4 h-4 mb-0.5"></i> File Issue
+      </button>
+      <button onclick="switchTab('tracker')" class="flex flex-col items-center text-[10px] text-slate-300 font-medium">
+        <i data-lucide="list-checks" class="w-4 h-4 mb-0.5"></i> Tracker
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SUB-HEADER TICKER / BANNER ================= -->
+  <div class="bg-white border-b border-slate-200 px-4 py-2 sm:px-6 lg:px-8 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+    <div class="flex items-center space-x-2">
+      <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+        <i data-lucide="activity" class="w-3 h-3 mr-1 inline"></i> CITY SURVEILLANCE
+      </span>
+      <span class="font-medium text-slate-700">Autonomous Municipal AI triaging grievances across 8 Wards & 10 Departments.</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <span class="text-slate-500">Live Clock: <span id="system-time" class="font-mono text-slate-800 font-medium">--:--:--</span></span>
+      <button onclick="refreshData()" title="Force Sync Data" class="text-slate-600 hover:text-indigo-600 flex items-center space-x-1">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        <span>Sync</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ================= TAB 1: EXECUTIVE COMMAND DASHBOARD ================= -->
+    <section id="view-dashboard" class="space-y-6">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Municipal Command & Control</h1>
+          <p class="text-sm text-slate-500">Real-time civic triage, department allocations, SLA compliance, and field crew telemetry.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="exportCSV()" class="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export CSV</span>
+          </button>
+          <button onclick="seedDatabase()" class="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold shadow-xs transition" title="Reset sample test grievances">
+            <i data-lucide="database-zap" class="w-3.5 h-3.5"></i>
+            <span>Demo Data Seeder</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SLA Breached Alert Banner (Dynamic) -->
+      <div id="sla-hazard-alert" class="hidden p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-start space-x-3 shadow-sm">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+        <div class="flex-1 text-sm">
+          <span class="font-bold text-red-900">Urgent Field Attention Required:</span>
+          <span id="sla-hazard-count">2 critical hazards</span> approaching or exceeding SLA response limits. Inspect prioritized rows below.
+        </div>
+      </div>
+
+      <!-- KPI Metrics Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        
+        <!-- Total Complaints -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover-card">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Grievances</span>
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <i data-lucide="inbox" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline space-x-2">
+            <span id="kpi-total" class="text-3xl font-extrabold text-slate-900">--</span>
+            <span class="text-xs font-medium text-emerald-600 flex items-center">
+              <i data-lucide="trending-up" class="w-3 h-3 mr-0.5"></i> +14% wk
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Across all 8 urban wards</p>
+        </div>
+
+        <!-- In-Field / Active -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover-card">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Crews</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+              <i data-lucide="truck" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline space-x-2">
+            <span id="kpi-active" class="text-3xl font-extrabold text-amber-600">--</span>
+            <span class="text-xs font-medium text-slate-500">Dispatched / In Prog</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Under active engineering repair</p>
+        </div>
+
+        <!-- Resolution Rate -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover-card">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Resolution Rate</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline space-x-2">
+            <span id="kpi-rate" class="text-3xl font-extrabold text-emerald-600">--%</span>
+            <span id="kpi-resolved-count" class="text-xs font-medium text-slate-500">(-- resolved)</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Verified with photo evidence</p>
+        </div>
+
+        <!-- SLA Compliance -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover-card">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">SLA Compliance</span>
+            <div class="w-8 h-8 rounded-lg bg-cyan-50 flex items-center justify-center text-cyan-600">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline space-x-2">
+            <span id="kpi-sla" class="text-3xl font-extrabold text-slate-900">--%</span>
+            <span class="text-xs font-medium text-emerald-600">Avg 24h</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Within standard municipal norms</p>
+        </div>
+
+      </div>
+
+      <!-- Charts Section: Department Workload & Category Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Department Workload Bar Chart -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Department Workload Distribution</h3>
+              <p class="text-xs text-slate-400">Backlog and engineering task load by municipal authority</p>
+            </div>
+            <span class="text-[11px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Live Telemetry</span>
+          </div>
+          <div class="h-64 relative">
+            <canvas id="chart-departments"></canvas>
+          </div>
+        </div>
+
+        <!-- Category Donut Chart -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Grievance Taxonomy</h3>
+              <p class="text-xs text-slate-400">Classified by Gemini AI</p>
+            </div>
+          </div>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="chart-categories"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Executive Grievance Management Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        
+        <!-- Table Header & Controls -->
+        <div class="p-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-slate-400"></i>
+            <h3 class="text-sm font-bold text-slate-800">Municipal Triage Queue</h3>
+            <span id="queue-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-indigo-50 text-indigo-700">0 records</span>
+          </div>
+
+          <!-- Quick Filters -->
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="relative">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+              <input id="tbl-search" oninput="debounceFilter()" type="text" placeholder="Search ID, title, area..." class="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 w-48 sm:w-60" />
+            </div>
+
+            <select id="tbl-filter-dept" onchange="renderDashboard()" class="text-xs py-1.5 px-2 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="">All Departments</option>
+            </select>
+
+            <select id="tbl-filter-status" onchange="renderDashboard()" class="text-xs py-1.5 px-2 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="">All Statuses</option>
+              <option value="Reported">Reported</option>
+              <option value="Dispatched">Dispatched</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+
+            <select id="tbl-filter-priority" onchange="renderDashboard()" class="text-xs py-1.5 px-2 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="">All Urgencies</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200 text-[11px] tracking-wider">
+              <tr>
+                <th class="py-3 px-4">Ticket</th>
+                <th class="py-3 px-4">Complaint & Area</th>
+                <th class="py-3 px-4">AI Department</th>
+                <th class="py-3 px-4">Priority / SLA</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Endorsements</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-table-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= TAB 2: SPATIAL MAP & CITY HEAT EXPLORER ================= -->
+    <section id="view-map" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Civic Spatial Explorer</h1>
+          <p class="text-sm text-slate-500">Geospatial mapping of urban grievances with live severity hazard pins.</p>
+        </div>
+        <div class="flex items-center space-x-3 text-xs">
+          <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span> <span>Critical</span></span>
+          <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> <span>High</span></span>
+          <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-sky-500 inline-block"></span> <span>Medium</span></span>
+          <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> <span>Low</span></span>
+        </div>
+      </div>
+
+      <!-- Map Container -->
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+        <div id="city-map" class="w-full h-[580px] rounded-lg"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: FILE GRIEVANCE (CITIZEN PORTAL) ================= -->
+    <section id="view-report" class="hidden space-y-6">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+          <span class="text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Citizens First Portal</span>
+          <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Report a Civic Infrastructure Issue</h1>
+          <p class="text-slate-500 text-sm max-w-xl mx-auto mt-1">Our autonomous Gemini AI triages your report within seconds, assesses safety hazards, and dispatches the corresponding municipal squad.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          
+          <!-- Grievance Form (7 cols) -->
+          <div class="md:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <form id="grievance-form" onsubmit="submitGrievance(event)" class="space-y-4">
+              
+              <!-- Issue Title -->
+              <div>
+                <label for="form-title" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Issue Title *</label>
+                <input id="form-title" oninput="updateAiPreTriage()" required maxlength="120" placeholder="e.g. Broken water pipeline flooding lane" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label for="form-desc" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Detailed Description *</label>
+                <textarea id="form-desc" oninput="updateAiPreTriage()" required rows="3" placeholder="Provide dimensions, how long it has persisted, hazards to pedestrians or transit..." class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"></textarea>
+              </div>
+
+              <!-- Location & Ward -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label for="form-loc" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Street / Landmark *</label>
+                  <input id="form-loc" oninput="updateAiPreTriage()" required placeholder="Opposite Metro Pillar #124" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" />
+                </div>
+                <div>
+                  <label for="form-ward" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Municipal Ward</label>
+                  <select id="form-ward" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+              </div>
+
+              <!-- Citizen Selected Category (Optional) -->
+              <div>
+                <label for="form-cat" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Category (Optional - AI will confirm)</label>
+                <select id="form-cat" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 bg-white">
+                  <option value="">Let Gemini AI auto-classify</option>
+                </select>
+              </div>
+
+              <!-- Reporter Name & Phone -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label for="form-name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Your Name</label>
+                  <input id="form-name" placeholder="Leave empty for Anonymous" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                  <label for="form-phone" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Contact for SMS Alerts</label>
+                  <input id="form-phone" placeholder="+91 98765-XXXXX" class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500" />
+                </div>
+              </div>
+
+              <!-- Photo Upload with Preview -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Attach Photo Evidence (Optional)</label>
+                <div class="mt-1 flex justify-center px-4 pt-4 pb-4 border-2 border-slate-300 border-dashed rounded-xl hover:border-indigo-400 transition cursor-pointer relative bg-slate-50/50">
+                  <input id="form-img" type="file" accept="image/*" onchange="previewImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <div id="dropzone-placeholder" class="space-y-1 text-center">
+                    <i data-lucide="image-plus" class="mx-auto h-8 w-8 text-slate-400"></i>
+                    <div class="flex text-xs text-slate-600 justify-center">
+                      <span class="font-semibold text-indigo-600">Click to upload photo</span>
+                      <span class="pl-1">or drag and drop</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400">PNG, JPG, WebP up to 10MB (Auto-compressed)</p>
+                  </div>
+                  <div id="dropzone-preview-container" class="hidden relative">
+                    <img id="dropzone-preview" class="max-h-36 rounded-lg shadow-sm object-cover" />
+                    <button type="button" onclick="clearImagePreview(event)" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700">
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button id="btn-submit-form" type="submit" class="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold text-sm shadow-md transition transform active:scale-[0.99]">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span id="btn-submit-text">Transmit Complaint to Control Room</span>
+              </button>
+
+            </form>
+          </div>
+
+          <!-- Live AI Pre-Triage Inspector (5 cols) -->
+          <div class="md:col-span-5 space-y-4">
+            
+            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 p-6 rounded-2xl text-white shadow-md border border-slate-800">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></div>
+                  <span class="text-xs font-bold tracking-wider uppercase text-indigo-300">Live AI Pre-Triage</span>
+                </div>
+                <span class="text-[11px] font-mono text-slate-400">Autonomous</span>
+              </div>
+
+              <div class="mt-4 space-y-3">
+                <div>
+                  <span class="text-xs text-slate-400">Predicted Department:</span>
+                  <div id="ai-live-dept" class="text-sm font-bold text-white mt-0.5">-- Typing to predict --</div>
+                </div>
+
+                <div>
+                  <span class="text-xs text-slate-400">Urgency Classification:</span>
+                  <div id="ai-live-priority" class="text-sm font-bold text-amber-400 mt-0.5">Medium (Estimated)</div>
+                </div>
+
+                <div>
+                  <span class="text-xs text-slate-400">Public Hazard Risk Index:</span>
+                  <div class="w-full bg-slate-800 rounded-full h-2.5 mt-1 overflow-hidden">
+                    <div id="ai-live-hazard-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-300" style="width: 35%"></div>
+                  </div>
+                  <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                    <span>Low Hazard</span>
+                    <span id="ai-live-hazard-val">35/100</span>
+                    <span>Critical Alert</span>
+                  </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800">
+                  <span class="text-xs text-slate-400">Target Standard SLA:</span>
+                  <div id="ai-live-sla" class="text-xs font-mono text-slate-200 mt-0.5">48 Hours turn-around</div>
+                </div>
+
+                <!-- Duplicate Detection Box -->
+                <div id="ai-live-dup-box" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs">
+                  <div class="flex items-center space-x-1.5 font-bold mb-1">
+                    <i data-lucide="copy" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Cluster Similarity Alert</span>
+                  </div>
+                  <p id="ai-live-dup-text" class="text-[11px] text-amber-300">A similar open grievance was reported nearby.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Guarantee Box -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs text-xs text-slate-600 space-y-2">
+              <div class="flex items-center space-x-2 font-bold text-slate-800">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                <span>Municipal Citizen Charter</span>
+              </div>
+              <p>Every grievance entered into CivicPulse is registered onto an immutable ledger, assigned to the zonal field engineer, and tracks public audit histories until photographic closure.</p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 4: PUBLIC TRACKER & EXPLORER ================= -->
+    <section id="view-tracker" class="hidden space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Public Grievance Tracker</h1>
+          <p class="text-sm text-slate-500">Search by Ticket ID or browse community grievances and upvote issues in your neighborhood.</p>
+        </div>
+
+        <!-- Search Ticket ID Direct -->
+        <div class="flex items-center space-x-2">
+          <input id="direct-ticket-input" type="text" placeholder="Enter Ticket (e.g. CR-1002)" class="px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 font-mono" />
+          <button onclick="lookupDirectTicket()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">
+            Track
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Sorters -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+            <input id="public-search" oninput="debouncePublicFilter()" type="text" placeholder="Search keywords..." class="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 w-48 sm:w-64" />
+          </div>
+
+          <select id="public-filter-ward" onchange="renderPublicFeed()" class="text-xs py-1.5 px-2 rounded-lg border border-slate-200 focus:outline-none">
+            <option value="">All Municipal Wards</option>
+          </select>
+
+          <select id="public-filter-status" onchange="renderPublicFeed()" class="text-xs py-1.5 px-2 rounded-lg border border-slate-200 focus:outline-none">
+            <option value="">All Statuses</option>
+            <option value="Reported">Reported</option>
+            <option value="Dispatched">Dispatched</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+
+        <!-- Sort by -->
+        <div class="flex items-center space-x-2 text-xs">
+          <span class="text-slate-500">Sort:</span>
+          <select id="public-sort" onchange="renderPublicFeed()" class="py-1.5 px-2 rounded-lg border border-slate-200 focus:outline-none">
+            <option value="newest">Most Recent</option>
+            <option value="upvotes">Most Endorsed (+1)</option>
+            <option value="urgency">Highest Severity</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Public Grievance Card Grid -->
+      <div id="public-feed-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered Dynamically -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+        </div>
+        <span class="text-white font-bold">CivicPulse Enterprise Platform</span>
+        <span class="text-slate-500">| Powered by Google Gemini AI & High-Precision Municipal Rules</span>
+      </div>
+      <div>
+        <span>Municipal Corporation Data Portal &middot; Designed for Maximum Urban Transparency</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: ISSUE DETAILS DOSSIER ================= -->
+  <div id="modal-details" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
+      
+      <!-- Modal Header -->
+      <div class="p-6 border-b border-slate-200 flex items-start justify-between sticky top-0 bg-white z-10">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span id="mdl-id" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-indigo-100 text-indigo-800">CR-XXXX</span>
+            <span id="mdl-priority-badge" class="px-2 py-0.5 rounded text-xs font-semibold">Priority</span>
+            <span id="mdl-status-badge" class="px-2 py-0.5 rounded text-xs font-semibold">Status</span>
+          </div>
+          <h2 id="mdl-title" class="text-lg font-bold text-slate-900 mt-1">Issue Title</h2>
+          <p id="mdl-location" class="text-xs text-slate-500">Location</p>
+        </div>
+        <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6 text-sm">
+        
+        <!-- Photo if available -->
+        <div id="mdl-photo-box" class="hidden">
+          <img id="mdl-photo" class="w-full h-56 object-cover rounded-xl border border-slate-200" />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Citizen Statement</h4>
+          <p id="mdl-desc" class="text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-100 leading-relaxed"></p>
+        </div>
+
+        <!-- Lifecycle Stepper -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Resolution Stepper</h4>
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-medium">
+            <div id="step-reported" class="py-2 px-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-400">1. Reported</div>
+            <div id="step-dispatched" class="py-2 px-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-400">2. Dispatched</div>
+            <div id="step-inprogress" class="py-2 px-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-400">3. In Progress</div>
+            <div id="step-resolved" class="py-2 px-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-400">4. Resolved</div>
+          </div>
+        </div>
+
+        <!-- AI Dossier Card -->
+        <div class="p-4 rounded-xl bg-slate-900 text-white space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-300">Gemini AI Triage Assessment</span>
+            </div>
+            <span id="mdl-ai-source" class="text-[11px] font-mono text-slate-400">Gemini 2.5</span>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4 text-xs">
+            <div>
+              <span class="text-slate-400">Department Routing:</span>
+              <div id="mdl-ai-dept" class="font-bold text-white mt-0.5">--</div>
+            </div>
+            <div>
+              <span class="text-slate-400">Assigned Field Crew:</span>
+              <div id="mdl-officer" class="font-bold text-emerald-400 mt-0.5">--</div>
+            </div>
+          </div>
+
+          <div class="text-xs">
+            <span class="text-slate-400">Reasoning & Urgency Logic:</span>
+            <p id="mdl-ai-reason" class="text-slate-200 mt-0.5"></p>
+          </div>
+
+          <div class="text-xs">
+            <span class="text-slate-400">Recommended Engineering Action:</span>
+            <p id="mdl-ai-action" class="text-indigo-200 font-medium mt-0.5"></p>
+          </div>
+        </div>
+
+        <!-- Official Resolution Proof (If Resolved) -->
+        <div id="mdl-resolution-box" class="hidden p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1">
+          <div class="flex items-center space-x-1.5 font-bold text-xs uppercase tracking-wider text-emerald-800">
+            <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
+            <span>Official Closure & Resolution Proof</span>
+          </div>
+          <p id="mdl-resolution-note" class="text-xs text-emerald-800 font-medium"></p>
+          <div id="mdl-resolution-officer" class="text-[11px] text-emerald-700"></div>
+        </div>
+
+        <!-- Timeline History -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Audit & Event Log</h4>
+          <div id="mdl-history" class="space-y-2 text-xs">
+            <!-- Timeline entries -->
+          </div>
+        </div>
+
+        <!-- Add Community Comment / Verification -->
+        <div class="pt-4 border-t border-slate-200">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Add Public Observation / Community Feedback</h4>
+          <div class="flex gap-2">
+            <input id="comment-input" type="text" placeholder="e.g. Work crew is currently on site..." class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500" />
+            <button onclick="postCitizenComment()" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">
+              Post Note
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: OFFICER ACTION DRAWER (ADMIN) ================= -->
+  <div id="modal-officer-action" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Officer Work Order Dispatch</h3>
+          <p id="adm-action-ticket" class="text-xs font-mono text-indigo-600 font-bold">Ticket: CR-XXXX</p>
+        </div>
+        <button onclick="closeOfficerActionModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Update Status</label>
+          <select id="adm-set-status" class="w-full p-2 rounded-lg border border-slate-300 bg-white">
+            <option value="Reported">Reported</option>
+            <option value="Dispatched">Dispatched</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Reassign Department</label>
+          <select id="adm-set-dept" class="w-full p-2 rounded-lg border border-slate-300 bg-white">
+            <!-- Dynamic Depts -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Priority Override</label>
+          <select id="adm-set-priority" class="w-full p-2 rounded-lg border border-slate-300 bg-white">
+            <option value="Critical">Critical (24h SLA)</option>
+            <option value="High">High (48h SLA)</option>
+            <option value="Medium">Medium (120h SLA)</option>
+            <option value="Low">Low (240h SLA)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Assign Field Crew / Engineer</label>
+          <input id="adm-set-officer" placeholder="e.g. Er. Rajesh Varma (Field Lead)" class="w-full p-2 rounded-lg border border-slate-300" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Public Resolution / Status Note</label>
+          <textarea id="adm-set-note" rows="2" placeholder="Citizen-visible update regarding progress or repair details..." class="w-full p-2 rounded-lg border border-slate-300"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Internal Officer Confidential Note</label>
+          <input id="adm-set-internal" placeholder="Logistics, vendor procurement or police coordination note..." class="w-full p-2 rounded-lg border border-slate-300" />
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+        <button onclick="deleteTicketConfirm()" class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold">
+          Delete Ticket
+        </button>
+        <div class="flex space-x-2">
+          <button onclick="closeOfficerActionModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold">
+            Cancel
+          </button>
+          <button onclick="saveOfficerAction()" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">
+            Apply Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: OFFICER LOGIN ================= -->
+  <div id="modal-login" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Officer Authentication</h3>
+          <p class="text-xs text-slate-500">Enter your Municipal Security PIN</p>
+        </div>
+      </div>
+
+      <div>
+        <label for="admin-pin-input" class="block text-xs font-bold text-slate-700 mb-1">Security PIN</label>
+        <input id="admin-pin-input" type="password" placeholder="Defaults to admin123" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 font-mono" />
+        <p id="login-error-msg" class="text-[11px] text-red-600 mt-1 hidden">Incorrect PIN. Please re-enter.</p>
+      </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeAdminModal()" class="flex-1 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50">Cancel</button>
+        <button onclick="submitAdminLogin()" class="flex-1 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">Authenticate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOAST CONTAINER ================= -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

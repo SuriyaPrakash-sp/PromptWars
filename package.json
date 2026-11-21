@@ -1,0 +1,24 @@
+{
+  "name": "promptwars-civicpulse",
+  "version": "2.0.0",
+  "description": "Enterprise AI-Powered Civic Grievance Redressal, Spatial Map & Executive Command Dashboard with Google Gemini",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "gemini-ai",
+    "civic-tech",
+    "smart-city",
+    "grievance-redressal",
+    "executive-dashboard",
+    "spatial-map",
+    "sla-tracker"
+  ],
+  "author": "Suriya Prakash",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
