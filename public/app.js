@@ -752,35 +752,91 @@ function renderPublicFeed() {
     const statusBadge = getStatusBadgeHtml(item.status);
     const dateStr = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const imgUrl = item.image || getCategorySvg(item.category, item.title);
+    const hazardScore = item.ai?.hazardScore || 65;
+    const hazardColor = hazardScore >= 80 ? 'bg-rose-500' : (hazardScore >= 55 ? 'bg-amber-500' : 'bg-emerald-500');
 
     return `
-      <div class="neo-card bg-white overflow-hidden flex flex-col justify-between">
+      <div class="neo-card interactive-grievance-card bg-white overflow-hidden flex flex-col justify-between">
         
-        <!-- Snapshot Frame -->
+        <!-- Snapshot Frame with Frosted Glass HUD Telemetry Overlay on Hover -->
         <div class="civic-img-frame relative cursor-pointer" onclick="openDetailsModal('${item.id}')">
           <img src="${imgUrl}" onerror="this.src=getCategorySvg('${item.category}','${item.title}')" alt="Grievance Evidence" />
-          <div class="absolute top-3 left-3 flex items-center space-x-2">
+          
+          <!-- Default Visible Floating Badges -->
+          <div class="absolute top-3 left-3 flex items-center space-x-2 z-10">
             <span class="neo-badge bg-slate-900 text-white border-white font-mono">${item.id}</span>
           </div>
-          <div class="absolute top-3 right-3 flex items-center space-x-1.5">
+          <div class="absolute top-3 right-3 flex items-center space-x-1.5 z-10">
             ${prioBadge}
+          </div>
+
+          <!-- FROSTED GLASS HUD TELEMETRY OVERLAY (REVEALED ON HOVER) -->
+          <div class="hud-telemetry-overlay">
+            <div>
+              <div class="flex items-center justify-between text-[11px] font-mono text-cyan-300 font-black border-b border-white/10 pb-1.5">
+                <span class="flex items-center space-x-1">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                  <span>AI INTEL HUD</span>
+                </span>
+                <span>${Math.round((item.ai?.confidence || 0.95) * 100)}% CONFIDENCE</span>
+              </div>
+
+              <div class="mt-2.5 space-y-1.5 text-xs">
+                <div>
+                  <div class="flex justify-between text-[10px] text-slate-300 font-bold">
+                    <span>HAZARD INDEX</span>
+                    <span class="font-mono text-cyan-300">${hazardScore}/100</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2 mt-0.5 overflow-hidden border border-slate-700">
+                    <div class="${hazardColor} h-2 rounded-full" style="width: ${hazardScore}%"></div>
+                  </div>
+                </div>
+
+                <p class="text-[11px] text-slate-200 line-clamp-2 leading-tight font-medium mt-1">
+                  <span class="text-cyan-400 font-bold">Action:</span> ${escapeHtml(item.ai?.suggestedAction || 'Deploy mobile engineering squad')}
+                </p>
+
+                <p class="text-[10px] text-slate-300 line-clamp-1 font-semibold">
+                  <span class="text-amber-300 font-bold">Impact:</span> ${escapeHtml(item.ai?.publicImpact || 'Local residents & commuters')}
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-cyan-300 font-bold">
+              <span>Inspect Full Dossier</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </div>
           </div>
         </div>
 
-        <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+        <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
           <div>
             <div class="flex items-center justify-between text-xs text-slate-500 font-bold mb-1.5">
-              <span class="font-black text-indigo-700">${escapeHtml(item.department)}</span>
-              <span>${dateStr}</span>
+              <span class="font-black text-indigo-700 uppercase tracking-wide">${escapeHtml(item.department)}</span>
+              <span class="font-mono">${dateStr}</span>
             </div>
 
             <h3 class="font-black text-slate-950 text-base leading-snug line-clamp-1 cursor-pointer hover:text-indigo-600 transition" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</h3>
             <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-2 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>
 
+            <!-- PERMANENT INTEL STRIP (SHOWN WITHOUT HOVER & ON MOBILE) -->
+            <div class="mt-3.5 flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+              <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-300 flex items-center space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full ${hazardColor}"></span>
+                <span>Risk ${hazardScore}/100</span>
+              </span>
+              <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-200">
+                ⏱️ ${item.ai?.slaHours || 48}h SLA
+              </span>
+              <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 truncate max-w-[170px]">
+                🛠️ ${escapeHtml(item.assignedOfficer || 'Squad Queued')}
+              </span>
+            </div>
+
             <div class="mt-4 pt-3 border-t-2 border-slate-100 flex items-center justify-between text-xs text-slate-500 font-bold">
               <span class="flex items-center space-x-1.5">
                 <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-700"></i>
-                <span class="truncate max-w-[160px] font-bold text-slate-800">${escapeHtml(item.location)}</span>
+                <span class="truncate max-w-[150px] font-bold text-slate-800">${escapeHtml(item.location)}</span>
               </span>
               <span>${statusBadge}</span>
             </div>
