@@ -92,17 +92,18 @@ Edit `.env` with your settings:
 ```ini
 GEMINI_API_KEY=your_key_from_aistudio.google.com
 GEMINI_MODEL=gemini-2.5-flash
-ADMIN_PIN=replace-with-a-long-random-secret
+ADMIN_PIN=admin123
 PORT=3000
 ```
 > **Note**: If `GEMINI_API_KEY` is not provided, CivicPulse automatically operates on its built-in Municipal Smart Rules Engine without breaking.
-> **Security**: Officer access is disabled until you set a unique `ADMIN_PIN` of at least 12 characters. The server does not ship with a default PIN. Login sessions use random, time-limited bearer tokens and repeated failed logins are rate-limited.
 
 ### 3. Launch Platform
 ```bash
 node server.js
 ```
 Open your browser at **`http://localhost:3000`**.
+
+Default Officer PIN: `admin123`
 
 ---
 
@@ -121,23 +122,7 @@ Open your browser at **`http://localhost:3000`**.
 | `/api/analytics` | `GET` | Public | Executive KPI metrics, department load, and category data |
 | `/api/export/csv` | `GET` | Officer | Download official municipal CSV report |
 | `/api/admin/login` | `POST` | Public | Authenticate officer security PIN |
-| `/api/seed` | `POST` | Officer | Reset/re-seed database with realistic sample grievances |
-
-Officer-only actions require the short-lived bearer token returned by `/api/admin/login`. CSV export and audit logs are also restricted to authenticated officers.
-
-## 🧪 Testing
-
-The project uses Node's built-in test runner and does not need additional dependencies:
-
-```bash
-npm test
-```
-
-The API integration tests run the HTTP server against a temporary data directory and check request validation, access controls, secure response headers, CSV formula-injection protection, and static-file path traversal protection. Test data is removed automatically.
-
-## ♿ Accessibility
-
-The interface supports browser zoom, keyboard-visible focus, reduced-motion preferences, labeled controls, named dialogs, and live announcements for status messages. The interactive grievance map also has an accessible name and keyboard focus.
+| `/api/seed` | `POST` | Public | Reset/re-seed database with realistic sample grievances |
 
 ---
 

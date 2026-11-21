@@ -10,7 +10,7 @@ let APP_STATE = {
   analytics: null,
   activeTab: 'dashboard',
   isAdmin: false,
-  adminToken: sessionStorage.getItem('civicpulse_token') || '',
+  adminToken: sessionStorage.getItem('civicpulse_pin') || '',
   selectedIssueId: null,
   map: null,
   mapMarkers: [],
@@ -18,8 +18,7 @@ let APP_STATE = {
   catChart: null,
   searchDebounceTimer: null,
   preTriageDebounceTimer: null,
-  attachedImageBase64: null,
-  modalReturnFocus: null
+  attachedImageBase64: null
 };
 
 // High-Fidelity SVG Graphic Snapshot Generator (Client-Side Guaranteed Visuals)
@@ -55,66 +54,11 @@ function getCategorySvg(category, title) {
 
 // ================= INITIALIZATION =================
 document.addEventListener('DOMContentLoaded', async () => {
-  document.addEventListener('keydown', handleDialogKeydown);
   startClock();
   await loadMetadata();
   await refreshData();
   lucide.createIcons();
 });
-
-function showModal(id) {
-  const modal = document.getElementById(id);
-  if (!modal) return;
-  if (!document.querySelector('[role="dialog"]:not(.hidden)')) {
-    APP_STATE.modalReturnFocus = document.activeElement;
-  }
-  modal.classList.remove('hidden');
-  const firstFocusable = modal.querySelector('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
-  if (firstFocusable) firstFocusable.focus();
-}
-
-function hideModal(id) {
-  const modal = document.getElementById(id);
-  if (!modal) return;
-  modal.classList.add('hidden');
-  if (!document.querySelector('[role="dialog"]:not(.hidden)') && APP_STATE.modalReturnFocus?.isConnected) {
-    APP_STATE.modalReturnFocus.focus();
-    APP_STATE.modalReturnFocus = null;
-  }
-}
-
-function handleDialogKeydown(event) {
-  const dialogs = document.querySelectorAll('[role="dialog"]:not(.hidden)');
-  const modal = dialogs[dialogs.length - 1];
-  if (!modal) return;
-
-  if (event.key === 'Escape') {
-    event.preventDefault();
-    if (modal.id === 'modal-details') closeDetailsModal();
-    else if (modal.id === 'modal-officer-action') closeOfficerActionModal();
-    else if (modal.id === 'modal-login') closeAdminModal();
-    return;
-  }
-
-  if (event.key !== 'Tab') return;
-  const focusable = Array.from(modal.querySelectorAll(
-    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  )).filter(element => element.getClientRects().length > 0);
-  if (focusable.length === 0) return;
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (!modal.contains(document.activeElement)) {
-    event.preventDefault();
-    first.focus();
-  } else if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
-  }
-}
 
 function startClock() {
   const el = document.getElementById('system-time');
@@ -129,7 +73,7 @@ function startClock() {
 async function apiRequest(endpoint, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
-    ...(APP_STATE.adminToken ? { Authorization: `Bearer ${APP_STATE.adminToken}` } : {}),
+    ...(APP_STATE.adminToken ? { 'x-admin-pin': APP_STATE.adminToken } : {}),
     ...(options.headers || {})
   };
 
@@ -165,7 +109,7 @@ async function loadMetadata() {
         }
       } catch {
         APP_STATE.adminToken = '';
-        sessionStorage.removeItem('civicpulse_token');
+        sessionStorage.removeItem('civicpulse_pin');
       }
     }
   } catch (e) {
@@ -238,13 +182,15 @@ function switchTab(tabId) {
 
   tabs.forEach(t => {
     const view = document.getElementById(`view-${t}`);
+    const btn = document.getElementById(`tab-btn-${t}`);
     if (view) view.classList.toggle('hidden', t !== tabId);
-    document.querySelectorAll(`[data-tab="${t}"]`).forEach(btn => {
-      btn.setAttribute('aria-current', t === tabId ? 'page' : 'false');
-      if (btn.classList.contains('neo-nav-tab')) {
-        btn.classList.toggle('active', t === tabId);
+    if (btn) {
+      if (t === tabId) {
+        btn.className = 'neo-nav-tab active';
+      } else {
+        btn.className = 'neo-nav-tab';
       }
-    });
+    }
   });
 
   if (tabId === 'map') {
@@ -420,7 +366,7 @@ function renderDashboard() {
         </td>
         <td class="py-4 px-5">
           <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-            <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover" />
+            <img src="${imgUrl}" onerror="this.src=getCategorySvg('${item.category}','${item.title}')" alt="Snapshot" class="w-full h-full object-cover" />
           </div>
         </td>
         <td class="py-4 px-5 max-w-xs">
@@ -447,7 +393,7 @@ function renderDashboard() {
         </td>
         <td class="py-4 px-5 text-right whitespace-nowrap">
           <div class="flex items-center justify-end space-x-2">
-            <button type="button" onclick="openDetailsModal('${item.id}')" title="Inspect Triage Dossier" aria-label="Inspect grievance ${escapeHtml(item.id)}" class="neo-btn neo-btn-white p-1.5 text-xs">
+            <button onclick="openDetailsModal('${item.id}')" title="Inspect Triage Dossier" class="neo-btn neo-btn-white p-1.5 text-xs">
               <i data-lucide="eye" class="w-4 h-4"></i>
             </button>
             <button onclick="openOfficerActionModal('${item.id}')" title="Officer Dispatch Action" class="neo-btn neo-btn-cyan px-3 py-1.5 text-xs">
@@ -558,7 +504,7 @@ function renderGisSidebar() {
   if (urgentContainer) {
     const criticals = APP_STATE.issues.filter(i => i.priority === 'Critical' || i.priority === 'High').slice(0, 3);
     urgentContainer.innerHTML = criticals.map(i => `
-      <div role="button" tabindex="0" aria-label="View urgent grievance ${escapeHtml(i.id)} details" onclick="openDetailsModal('${i.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetailsModal('${i.id}')}" class="p-3 rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 cursor-pointer transition">
+      <div onclick="openDetailsModal('${i.id}')" class="p-3 rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 cursor-pointer transition">
         <div class="flex items-center justify-between">
           <span class="font-mono font-bold text-rose-700 text-xs">${i.id}</span>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 text-rose-900">${i.priority}</span>
@@ -813,8 +759,8 @@ function renderPublicFeed() {
       <div class="neo-card interactive-grievance-card bg-white overflow-hidden flex flex-col justify-between">
         
         <!-- Snapshot Frame with Frosted Glass HUD Telemetry Overlay on Hover -->
-        <div class="civic-img-frame relative cursor-pointer" role="button" tabindex="0" aria-label="View grievance ${escapeHtml(item.id)} details" onclick="openDetailsModal('${item.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetailsModal('${item.id}')}">
-          <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" />
+        <div class="civic-img-frame relative cursor-pointer" onclick="openDetailsModal('${item.id}')">
+          <img src="${imgUrl}" onerror="this.src=getCategorySvg('${item.category}','${item.title}')" alt="Grievance Evidence" />
           
           <!-- Default Visible Floating Badges -->
           <div class="absolute top-3 left-3 flex items-center space-x-2 z-10">
@@ -870,7 +816,7 @@ function renderPublicFeed() {
               <span class="font-mono">${dateStr}</span>
             </div>
 
-            <h3 class="font-black text-slate-950 text-base leading-snug line-clamp-1 cursor-pointer hover:text-indigo-600 transition"><button type="button" class="text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-700" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</button></h3>
+            <h3 class="font-black text-slate-950 text-base leading-snug line-clamp-1 cursor-pointer hover:text-indigo-600 transition" onclick="openDetailsModal('${item.id}')">${escapeHtml(item.title)}</h3>
             <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-2 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>
 
             <!-- PERMANENT INTEL STRIP (SHOWN WITHOUT HOVER & ON MOBILE) -->
@@ -956,7 +902,6 @@ function openDetailsModal(issueId) {
 
   const photoImg = document.getElementById('mdl-photo');
   photoImg.src = issue.image || getCategorySvg(issue.category, issue.title);
-  photoImg.alt = issue.title;
   photoImg.onerror = () => { photoImg.src = getCategorySvg(issue.category, issue.title); };
 
   const steps = ['Reported', 'Dispatched', 'In Progress', 'Resolved'];
@@ -1001,12 +946,12 @@ function openDetailsModal(issueId) {
     </div>
   `).join('');
 
-  showModal('modal-details');
+  document.getElementById('modal-details').classList.remove('hidden');
   lucide.createIcons();
 }
 
 function closeDetailsModal() {
-  hideModal('modal-details');
+  document.getElementById('modal-details').classList.add('hidden');
   APP_STATE.selectedIssueId = null;
 }
 
@@ -1063,12 +1008,12 @@ function openOfficerActionModal(issueId) {
   document.getElementById('adm-set-note').value = '';
   document.getElementById('adm-set-internal').value = '';
 
-  showModal('modal-officer-action');
+  document.getElementById('modal-officer-action').classList.remove('hidden');
   lucide.createIcons();
 }
 
 function closeOfficerActionModal() {
-  hideModal('modal-officer-action');
+  document.getElementById('modal-officer-action').classList.add('hidden');
 }
 
 async function saveOfficerAction() {
@@ -1119,14 +1064,14 @@ async function deleteTicketConfirm() {
 
 // ================= OFFICER AUTHENTICATION =================
 function openAdminModal() {
-  showModal('modal-login');
+  document.getElementById('modal-login').classList.remove('hidden');
   document.getElementById('admin-pin-input').value = '';
   document.getElementById('login-error-msg').classList.add('hidden');
   document.getElementById('admin-pin-input').focus();
 }
 
 function closeAdminModal() {
-  hideModal('modal-login');
+  document.getElementById('modal-login').classList.add('hidden');
 }
 
 async function submitAdminLogin() {
@@ -1141,8 +1086,8 @@ async function submitAdminLogin() {
 
     if (res.ok) {
       APP_STATE.isAdmin = true;
-      APP_STATE.adminToken = res.token;
-      sessionStorage.setItem('civicpulse_token', res.token);
+      APP_STATE.adminToken = pin;
+      sessionStorage.setItem('civicpulse_pin', pin);
       updateAuthUI();
       closeAdminModal();
       showToast('Municipal Officer Console Unlocked!', 'success');
@@ -1170,33 +1115,12 @@ function updateAuthUI() {
 }
 
 // ================= EXPORT CSV & SEED DATA =================
-async function exportCSV() {
-  if (!APP_STATE.isAdmin || !APP_STATE.adminToken) {
-    showToast('Authenticate as an officer to export the municipal report.', 'error');
-    return;
-  }
-  try {
-    const response = await fetch('/api/export/csv', {
-      headers: { Authorization: `Bearer ${APP_STATE.adminToken}` }
-    });
-    if (!response.ok) throw new Error('Report export failed. Please authenticate again.');
-    const downloadUrl = URL.createObjectURL(await response.blob());
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = 'CivicPulse-Grievances-Report.csv';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-    showToast('Downloading Municipal Grievance Report...', 'info');
-  } catch (error) {
-    showToast(error.message || 'Report export failed.', 'error');
-  }
+function exportCSV() {
+  window.location.href = '/api/export/csv';
+  showToast('Downloading Municipal Grievance Report...', 'info');
 }
 
 async function seedDatabase() {
-  if (!APP_STATE.isAdmin || !APP_STATE.adminToken) {
-    showToast('Authenticate as an officer to reset demonstration records.', 'error');
-    return;
-  }
   if (!confirm('Re-seed the database with realistic demonstration grievance records?')) return;
   try {
     await apiRequest('/api/seed', { method: 'POST' });
@@ -1250,7 +1174,6 @@ function showToast(message, type = 'info') {
 
   const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info';
   toast.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 shrink-0"></i><span>${escapeHtml(message)}</span>`;
-  toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
 
   container.appendChild(toast);
   lucide.createIcons();
