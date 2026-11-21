@@ -17,11 +17,19 @@ if (fs.existsSync('.env')) {
 }
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const ADMIN_PIN = process.env.ADMIN_PIN || 'admin123';
+const ADMIN_PIN = process.env.ADMIN_PIN || '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const DB_FILE = path.join(__dirname, 'data.json');
-const AUDIT_FILE = path.join(__dirname, 'audit_log.json');
+const DATA_DIR = process.env.CIVICPULSE_DATA_DIR || __dirname;
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const DB_FILE = path.join(DATA_DIR, 'data.json');
+const AUDIT_FILE = path.join(DATA_DIR, 'audit_log.json');
+const ADMIN_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 5;
+const MAX_REQUEST_BYTES = 4 * 1024 * 1024;
+const adminSessions = new Map();
+const loginAttempts = new Map();
 
 // Master Taxonomy for Municipal Governance
 const DEPARTMENTS = [
@@ -160,6 +168,11 @@ function getSlaStatus(issue) {
   if (remainingHours < 0) return 'Breached';
   if (remainingHours <= 12) return 'Approaching Breach';
   return 'On Schedule';
+}
+
+function getPublicIssue(issue) {
+  const { reporter, reporterPhone, internalNotes, ...publicIssue } = issue;
+  return publicIssue;
 }
 
 // Gemini AI & Smart Rules Engine
@@ -687,42 +700,131 @@ function seedInitialData() {
 }
 
 // HTTP Helper Functions
+class HttpError extends Error {
+  constructor(statusCode, message) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
-    let raw = '';
+    const chunks = [];
+    let totalBytes = 0;
+    let rejected = false;
     req.on('data', chunk => {
-      raw += chunk;
-      if (raw.length > 15 * 1024 * 1024) {
-        req.destroy();
-        reject(new Error('Payload too large (limit 15MB)'));
+      totalBytes += chunk.length;
+      if (totalBytes > MAX_REQUEST_BYTES) {
+        rejected = true;
+        reject(new HttpError(413, 'Request payload exceeds the 4 MB limit.'));
+        req.resume();
+        return;
       }
+      chunks.push(chunk);
     });
     req.on('end', () => {
+      if (rejected) return;
       try {
-        resolve(raw ? JSON.parse(raw) : {});
+        const raw = Buffer.concat(chunks).toString('utf8');
+        const body = raw ? JSON.parse(raw) : {};
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+          throw new HttpError(400, 'The JSON request body must be an object.');
+        }
+        resolve(body);
       } catch (err) {
-        resolve({});
+        reject(err instanceof HttpError ? err : new HttpError(400, 'Malformed JSON request body.'));
       }
     });
     req.on('error', reject);
   });
 }
 
+function validateText(body, field, { required = false, maxLength = 500 } = {}) {
+  const value = body[field];
+  if (value === undefined || value === null || value === '') {
+    if (required) throw new HttpError(400, `${field} is required.`);
+    return '';
+  }
+  if (typeof value !== 'string') throw new HttpError(400, `${field} must be text.`);
+  const trimmed = value.trim();
+  if (required && !trimmed) throw new HttpError(400, `${field} is required.`);
+  if (trimmed.length > maxLength) throw new HttpError(400, `${field} must be at most ${maxLength} characters.`);
+  return trimmed;
+}
+
+function validateChoice(body, field, allowedValues) {
+  if (body[field] === undefined || body[field] === '') return '';
+  if (typeof body[field] !== 'string' || !allowedValues.includes(body[field])) {
+    throw new HttpError(400, `Invalid ${field}.`);
+  }
+  return body[field];
+}
+
+function validateImage(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value !== 'string' || value.length > 3 * 1024 * 1024 ||
+      !/^data:image\/(?:jpeg|png|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)) {
+    throw new HttpError(400, 'Image must be a supported base64-encoded image under 3 MB.');
+  }
+  return value;
+}
+
+function secureHeaders() {
+  return {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)'
+  };
+}
+
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, x-admin-pin, Authorization'
+    'Cache-Control': 'no-store',
+    ...secureHeaders()
   });
   res.end(JSON.stringify(payload));
 }
 
+function safeEqual(left, right) {
+  const a = Buffer.from(String(left));
+  const b = Buffer.from(String(right));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 function verifyAdmin(req) {
-  const pinHeader = req.headers['x-admin-pin'] || '';
-  const authHeader = req.headers['authorization'] || '';
-  const token = authHeader.replace(/^Bearer\s+/i, '');
-  return pinHeader === ADMIN_PIN || token === ADMIN_PIN || token === 'admin-session-active';
+  const authHeader = req.headers.authorization || '';
+  const match = authHeader.match(/^Bearer\s+([a-f0-9]{64})$/i);
+  if (!match) return false;
+  const expiresAt = adminSessions.get(match[1]);
+  if (!expiresAt) return false;
+  if (expiresAt <= Date.now()) {
+    adminSessions.delete(match[1]);
+    return false;
+  }
+  return true;
+}
+
+function getClientAddress(req) {
+  return req.socket.remoteAddress || 'unknown';
+}
+
+function getLoginAttemptState(req) {
+  const address = getClientAddress(req);
+  const now = Date.now();
+  let state = loginAttempts.get(address);
+  if (!state || now >= state.resetAt) {
+    state = { attempts: 0, resetAt: now + LOGIN_WINDOW_MS };
+    loginAttempts.set(address, state);
+  }
+  return { address, state };
+}
+
+function csvCell(value) {
+  let text = String(value ?? '');
+  if (/^[\s]*[=+\-@]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 // HTTP Request Router
@@ -732,11 +834,7 @@ const server = http.createServer(async (req, res) => {
   const method = req.method;
 
   if (method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-admin-pin, Authorization'
-    });
+    res.writeHead(204, secureHeaders());
     return res.end();
   }
 
@@ -763,10 +861,31 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/admin/login' && method === 'POST') {
       const body = await parseBody(req);
-      if (body.pin === ADMIN_PIN) {
-        logAudit('ADMIN_LOGIN', 'Administrator', 'Administrative console session authenticated.');
-        return sendJson(res, 200, { ok: true, token: 'admin-session-active', role: 'Municipal Administrator' });
+      if (ADMIN_PIN.length < 12) {
+        return sendJson(res, 503, { ok: false, error: 'Officer access requires an ADMIN_PIN of at least 12 characters.' });
       }
+
+      const { address, state } = getLoginAttemptState(req);
+      if (state.attempts >= MAX_LOGIN_ATTEMPTS) {
+        return sendJson(res, 429, { ok: false, error: 'Too many login attempts. Try again later.' });
+      }
+
+      const pin = validateText(body, 'pin', { required: true, maxLength: 256 });
+      if (safeEqual(pin, ADMIN_PIN)) {
+        const now = Date.now();
+        for (const [sessionToken, expiresAt] of adminSessions) {
+          if (expiresAt <= now) adminSessions.delete(sessionToken);
+        }
+        for (const [clientAddress, attemptState] of loginAttempts) {
+          if (attemptState.resetAt <= now) loginAttempts.delete(clientAddress);
+        }
+        loginAttempts.delete(address);
+        const token = crypto.randomBytes(32).toString('hex');
+        adminSessions.set(token, now + ADMIN_SESSION_TTL_MS);
+        logAudit('ADMIN_LOGIN', 'Administrator', 'Administrative console session authenticated.');
+        return sendJson(res, 200, { ok: true, token, role: 'Municipal Administrator' });
+      }
+      state.attempts += 1;
       return sendJson(res, 401, { ok: false, error: 'Invalid Administrative Access PIN.' });
     }
 
@@ -814,23 +933,43 @@ const server = http.createServer(async (req, res) => {
         data.sort((a, b) => (pOrder[b.priority] || 0) - (pOrder[a.priority] || 0));
       }
 
-      return sendJson(res, 200, data);
+      return sendJson(res, 200, data.map(getPublicIssue));
     }
 
     // 4. Submit New Civic Grievance
     if (pathname === '/api/issues' && method === 'POST') {
       const body = await parseBody(req);
-      if (!body.title || !body.description || !body.location) {
-        return sendJson(res, 400, { error: 'Grievance Title, Description, and Location are mandatory fields.' });
+      const title = validateText(body, 'title', { required: true, maxLength: 120 });
+      const description = validateText(body, 'description', { required: true, maxLength: 2000 });
+      const location = validateText(body, 'location', { required: true, maxLength: 200 });
+      const ward = validateChoice(body, 'ward', WARDS);
+      const category = validateChoice(body, 'category', CATEGORIES);
+      const reporter = validateText(body, 'reporter', { maxLength: 100 });
+      const reporterPhone = validateText(body, 'reporterPhone', { maxLength: 40 });
+      const image = validateImage(body.image);
+      if ((body.lat === undefined) !== (body.lng === undefined)) {
+        throw new HttpError(400, 'Latitude and longitude must be provided together.');
+      }
+      let coordinates = null;
+      if (body.lat !== undefined) {
+        const validLatitudeType = typeof body.lat === 'number' || typeof body.lat === 'string';
+        const validLongitudeType = typeof body.lng === 'number' || typeof body.lng === 'string';
+        const lat = Number(body.lat);
+        const lng = Number(body.lng);
+        if (!validLatitudeType || !validLongitudeType || String(body.lat).trim() === '' || String(body.lng).trim() === '' ||
+            !Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+          throw new HttpError(400, 'Coordinates are outside valid latitude or longitude ranges.');
+        }
+        coordinates = { lat, lng };
       }
 
       const issues = loadData();
       const ai = await analyzeComplaint({
-        title: body.title,
-        description: body.description,
-        location: body.location,
-        citizenCategory: body.category || '',
-        image: body.image || null,
+        title,
+        description,
+        location,
+        citizenCategory: category,
+        image,
         existingIssues: issues
       });
 
@@ -838,31 +977,31 @@ const server = http.createServer(async (req, res) => {
       const nextNum = issues.length > 0 ? Math.max(...issues.map(x => parseInt(x.id.replace(/\D/g, '') || '1000', 10))) + 1 : 1001;
       const newId = `CR-${nextNum}`;
 
-      const ward = body.ward || WARDS[Math.floor(Math.random() * WARDS.length)];
-      const coords = (body.lat && body.lng) ? { lat: Number(body.lat), lng: Number(body.lng) } : getGeoCoordinates(ward, nextNum);
+      const selectedWard = ward || WARDS[Math.floor(Math.random() * WARDS.length)];
+      const coords = coordinates || getGeoCoordinates(selectedWard, nextNum);
 
       const slaHours = ai.slaHours || SLA_HOURS_MAP[ai.priority] || 48;
       const slaDeadline = now + (slaHours * 3600 * 1000);
 
       // If no photo was attached, generate high-fidelity vector illustration
-      const imagePayload = body.image || getCategorySvg(ai.category, body.title);
+      const imagePayload = image || getCategorySvg(ai.category, title);
 
       const newIssue = {
         id: newId,
-        title: body.title.trim(),
-        description: body.description.trim(),
-        location: body.location.trim(),
-        ward,
+        title,
+        description,
+        location,
+        ward: selectedWard,
         coordinates: coords,
         image: imagePayload,
-        citizenCategory: body.category || '',
+        citizenCategory: category,
         category: ai.category,
         priority: ai.priority,
         department: ai.department,
         assignedOfficer: `Dept. ${ai.department} - Dispatch Queue`,
         status: 'Reported',
-        reporter: body.reporter ? body.reporter.trim() : 'Anonymous Citizen',
-        reporterPhone: body.reporterPhone ? body.reporterPhone.trim() : '',
+        reporter: reporter || 'Anonymous Citizen',
+        reporterPhone,
         upvotes: 1,
         upvotedBy: [],
         ai,
@@ -887,7 +1026,7 @@ const server = http.createServer(async (req, res) => {
       logAudit('ISSUE_CREATED', newIssue.reporter, `Registered complaint ${newId}: ${newIssue.title}`);
 
       return sendJson(res, 201, {
-        ...newIssue,
+        ...getPublicIssue(newIssue),
         slaStatus: 'On Schedule'
       });
     }
@@ -910,9 +1049,8 @@ const server = http.createServer(async (req, res) => {
     if (commentMatch && method === 'POST') {
       const issueId = commentMatch[1];
       const body = await parseBody(req);
-      if (!body.comment || !body.comment.trim()) {
-        return sendJson(res, 400, { error: 'Comment text is required' });
-      }
+      const comment = validateText(body, 'comment', { required: true, maxLength: 1000 });
+      const author = validateText(body, 'author', { maxLength: 80 });
       const issues = loadData();
       const issue = issues.find(x => x.id === issueId);
       if (!issue) return sendJson(res, 404, { error: 'Issue not found' });
@@ -920,8 +1058,8 @@ const server = http.createServer(async (req, res) => {
       const commentEntry = {
         status: issue.status,
         at: Date.now(),
-        note: `Citizen observation: ${body.comment.trim()}`,
-        author: body.author ? body.author.trim() : 'Local Resident'
+        note: `Citizen observation: ${comment}`,
+        author: author || 'Local Resident'
       };
       issue.history.push(commentEntry);
       issue.updatedAt = Date.now();
@@ -941,7 +1079,7 @@ const server = http.createServer(async (req, res) => {
         if (issueIndex === -1) return sendJson(res, 404, { error: 'Grievance record not found' });
         const issue = issues[issueIndex];
         return sendJson(res, 200, {
-          ...issue,
+          ...getPublicIssue(issue),
           slaStatus: getSlaStatus(issue),
           image: issue.image || getCategorySvg(issue.category, issue.title)
         });
@@ -961,53 +1099,60 @@ const server = http.createServer(async (req, res) => {
         if (issueIndex === -1) return sendJson(res, 404, { error: 'Issue not found' });
 
         const body = await parseBody(req);
+        const status = validateChoice(body, 'status', ['Reported', 'Dispatched', 'In Progress', 'Resolved']);
+        const department = validateChoice(body, 'department', DEPARTMENTS);
+        const priority = validateChoice(body, 'priority', ['Critical', 'High', 'Medium', 'Low']);
+        const category = validateChoice(body, 'category', CATEGORIES);
+        const assignedOfficer = validateText(body, 'assignedOfficer', { maxLength: 120 });
+        const note = validateText(body, 'note', { maxLength: 1000 });
+        const internalNote = validateText(body, 'internalNote', { maxLength: 1000 });
         const issue = issues[issueIndex];
         const now = Date.now();
 
-        if (body.department && DEPARTMENTS.includes(body.department)) issue.department = body.department;
-        if (body.priority && ['Critical', 'High', 'Medium', 'Low'].includes(body.priority)) {
-          issue.priority = body.priority;
-          issue.slaDeadline = issue.createdAt + (SLA_HOURS_MAP[body.priority] * 3600 * 1000);
+        if (department) issue.department = department;
+        if (priority) {
+          issue.priority = priority;
+          issue.slaDeadline = issue.createdAt + (SLA_HOURS_MAP[priority] * 3600 * 1000);
         }
-        if (body.category) issue.category = body.category;
-        if (body.assignedOfficer) issue.assignedOfficer = body.assignedOfficer;
+        if (category) issue.category = category;
+        if (assignedOfficer) issue.assignedOfficer = assignedOfficer;
 
-        if (body.status && body.status !== issue.status) {
+        if (status && status !== issue.status) {
           const oldStatus = issue.status;
-          issue.status = body.status;
+          issue.status = status;
           issue.updatedAt = now;
 
-          if (body.status === 'Resolved') {
+          if (status === 'Resolved') {
             issue.resolvedAt = now;
             issue.resolutionProof = {
-              note: body.note || 'Work completed in accordance with municipal guidelines.',
-              officerName: body.assignedOfficer || issue.assignedOfficer || 'Municipal Field Engineer',
+              note: note || 'Work completed in accordance with municipal guidelines.',
+              officerName: assignedOfficer || issue.assignedOfficer || 'Municipal Field Engineer',
               resolvedAt: now
             };
           }
 
           issue.history.push({
-            status: body.status,
+            status,
             at: now,
-            note: body.note || `Status transitioned from ${oldStatus} to ${body.status}.`,
-            author: body.assignedOfficer || 'Municipal Officer'
+            note: note || `Status transitioned from ${oldStatus} to ${status}.`,
+            author: assignedOfficer || 'Municipal Officer'
           });
 
-          logAudit('STATUS_CHANGE', 'Officer', `${issue.id} status updated to ${body.status}`);
-        } else if (body.note) {
+          logAudit('STATUS_CHANGE', 'Officer', `${issue.id} status updated to ${status}`);
+        } else if (note) {
           issue.history.push({
             status: issue.status,
             at: now,
-            note: body.note,
-            author: body.assignedOfficer || 'Municipal Officer'
+            note,
+            author: assignedOfficer || 'Municipal Officer'
           });
         }
 
-        if (body.internalNote) {
+        if (internalNote) {
           if (!issue.internalNotes) issue.internalNotes = [];
           issue.internalNotes.push({
             at: now,
-            note: body.internalNote,
+            note: internalNote,
             author: 'Control Room Officer'
           });
         }
@@ -1092,50 +1237,66 @@ const server = http.createServer(async (req, res) => {
 
     // 9. Export Grievances to Official CSV Format
     if (pathname === '/api/export/csv' && method === 'GET') {
+      if (!verifyAdmin(req)) return sendJson(res, 401, { error: 'Administrative authentication required.' });
       const data = loadData();
       const headers = ['ID', 'Title', 'Status', 'Priority', 'Department', 'Ward', 'Location', 'Reporter', 'Upvotes', 'SLA Status', 'Created Date', 'Resolved Date'];
-      const csvRows = [headers.join(',')];
+      const csvRows = [headers.map(csvCell).join(',')];
 
       data.forEach(i => {
         const row = [
-          `"${i.id}"`,
-          `"${(i.title || '').replace(/"/g, '""')}"`,
-          `"${i.status}"`,
-          `"${i.priority}"`,
-          `"${(i.department || '').replace(/"/g, '""')}"`,
-          `"${(i.ward || '').replace(/"/g, '""')}"`,
-          `"${(i.location || '').replace(/"/g, '""')}"`,
-          `"${(i.reporter || '').replace(/"/g, '""')}"`,
+          i.id,
+          i.title,
+          i.status,
+          i.priority,
+          i.department,
+          i.ward,
+          i.location,
+          i.reporter,
           i.upvotes || 0,
-          `"${getSlaStatus(i)}"`,
-          `"${new Date(i.createdAt).toISOString()}"`,
-          `"${i.resolvedAt ? new Date(i.resolvedAt).toISOString() : 'N/A'}"`
+          getSlaStatus(i),
+          new Date(i.createdAt).toISOString(),
+          i.resolvedAt ? new Date(i.resolvedAt).toISOString() : 'N/A'
         ];
-        csvRows.push(row.join(','));
+        csvRows.push(row.map(csvCell).join(','));
       });
 
       res.writeHead(200, {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="CivicPulse-Grievances-Report-${Date.now()}.csv"`
+        'Content-Disposition': `attachment; filename="CivicPulse-Grievances-Report-${Date.now()}.csv"`,
+        'Cache-Control': 'no-store',
+        ...secureHeaders()
       });
       return res.end(csvRows.join('\r\n'));
     }
 
     // 10. Audit Log Stream
     if (pathname === '/api/audit-log' && method === 'GET') {
+      if (!verifyAdmin(req)) return sendJson(res, 401, { error: 'Administrative authentication required.' });
       return sendJson(res, 200, loadAudit());
     }
 
     // 11. Seed / Reset Data Endpoint
     if (pathname === '/api/seed' && method === 'POST') {
+      if (!verifyAdmin(req)) return sendJson(res, 401, { error: 'Administrative authentication required.' });
       const seeded = seedInitialData();
       return sendJson(res, 200, { ok: true, count: seeded.length, message: 'Database refreshed with realistic municipal records.' });
     }
 
     // 12. Static Assets Serving
-    let filePath = path.join(__dirname, 'public', pathname === '/' ? 'index.html' : pathname.replace(/^(\.\.[\/\\])+/, ''));
+    let filePath;
+    try {
+      const decodedPath = decodeURIComponent(pathname);
+      const candidate = path.resolve(PUBLIC_DIR, decodedPath === '/' ? 'index.html' : `.${decodedPath}`);
+      const relativePath = path.relative(PUBLIC_DIR, candidate);
+      if (relativePath.startsWith(`..${path.sep}`) || relativePath === '..' || path.isAbsolute(relativePath)) {
+        throw new Error('Static path escapes public directory');
+      }
+      filePath = candidate;
+    } catch {
+      filePath = path.join(PUBLIC_DIR, 'index.html');
+    }
     if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-      filePath = path.join(__dirname, 'public', 'index.html');
+      filePath = path.join(PUBLIC_DIR, 'index.html');
     }
 
     const ext = path.extname(filePath).toLowerCase();
@@ -1156,21 +1317,31 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         return res.end('404 Resource Not Found');
       }
-      res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream' });
+      res.writeHead(200, {
+        'Content-Type': mimeTypes[ext] || 'application/octet-stream',
+        ...secureHeaders()
+      });
       res.end(content);
     });
 
   } catch (err) {
+    if (err instanceof HttpError) {
+      return sendJson(res, err.statusCode, { error: err.message });
+    }
     console.error('Unhandled server exception:', err);
-    sendJson(res, 500, { error: 'Internal CivicPulse Server Error', details: err.message });
+    sendJson(res, 500, { error: 'Internal CivicPulse Server Error' });
   }
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n======================================================`);
-  console.log(`🏛️  CivicPulse Enterprise Municipal Command Platform`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`🤖 Gemini AI Triage: ${GEMINI_API_KEY ? 'ONLINE (' + GEMINI_MODEL + ')' : 'HYBRID RULES ENGINE (Active)'}`);
-  console.log(`🔑 Admin PIN: ${ADMIN_PIN}`);
-  console.log(`======================================================\n`);
-});
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log('\n======================================================');
+    console.log('CivicPulse Enterprise Municipal Command Platform');
+    console.log(`URL: http://localhost:${PORT}`);
+    console.log(`Gemini AI Triage: ${GEMINI_API_KEY ? 'ONLINE (' + GEMINI_MODEL + ')' : 'HYBRID RULES ENGINE (Active)'}`);
+    console.log(`Officer access: ${ADMIN_PIN.length >= 12 ? 'configured' : 'disabled (set ADMIN_PIN to at least 12 characters)'}`);
+    console.log('======================================================\n');
+  });
+}
+
+module.exports = { server };

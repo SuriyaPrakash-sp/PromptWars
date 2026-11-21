@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CivicPulse Enterprise | Autonomous Municipal AI Command</title>
   
   <!-- Tailwind CSS -->
@@ -77,20 +77,20 @@
         </div>
 
         <!-- Desktop Navigation Tabs (Neo-Brutalist Pill Dock) -->
-        <nav class="hidden md:flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-2xl border-2 border-slate-800">
-          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="neo-nav-tab active">
+        <nav aria-label="Main navigation" class="hidden md:flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-2xl border-2 border-slate-800">
+          <button type="button" data-tab="dashboard" onclick="switchTab('dashboard')" id="tab-btn-dashboard" aria-controls="view-dashboard" aria-current="page" class="neo-nav-tab active">
             <i data-lucide="layout-dashboard" class="w-4 h-4 text-cyan-400"></i>
             <span>Command Center</span>
           </button>
-          <button onclick="switchTab('map')" id="tab-btn-map" class="neo-nav-tab">
+          <button type="button" data-tab="map" onclick="switchTab('map')" id="tab-btn-map" aria-controls="view-map" class="neo-nav-tab">
             <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i>
             <span>Spatial GIS</span>
           </button>
-          <button onclick="switchTab('report')" id="tab-btn-report" class="neo-nav-tab">
+          <button type="button" data-tab="report" onclick="switchTab('report')" id="tab-btn-report" aria-controls="view-report" class="neo-nav-tab">
             <i data-lucide="file-plus-2" class="w-4 h-4 text-amber-400"></i>
             <span>File Grievance</span>
           </button>
-          <button onclick="switchTab('tracker')" id="tab-btn-tracker" class="neo-nav-tab">
+          <button type="button" data-tab="tracker" onclick="switchTab('tracker')" id="tab-btn-tracker" aria-controls="view-tracker" class="neo-nav-tab">
             <i data-lucide="list-checks" class="w-4 h-4 text-indigo-400"></i>
             <span>Public Tracker</span>
           </button>
@@ -132,7 +132,7 @@
           <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-700"></i>
           <span id="system-time" class="font-mono text-slate-950 font-extrabold">--:--:--</span>
         </span>
-        <button onclick="refreshData()" class="text-indigo-600 hover:text-indigo-800 font-extrabold flex items-center space-x-1 transition">
+        <button type="button" onclick="refreshData()" class="text-indigo-600 hover:text-indigo-800 font-extrabold flex items-center space-x-1 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
           <span>Sync</span>
         </button>
@@ -157,11 +157,11 @@
           <p class="text-xs sm:text-sm text-slate-600 font-semibold mt-1">Real-time civic triage telemetry, engineering squad allocation, and SLA compliance monitoring.</p>
         </div>
         <div class="flex items-center space-x-3">
-          <button onclick="exportCSV()" class="neo-btn neo-btn-white px-3.5 sm:px-4 py-2 text-xs sm:text-sm">
+          <button type="button" onclick="exportCSV()" class="neo-btn neo-btn-white px-3.5 sm:px-4 py-2 text-xs sm:text-sm">
             <i data-lucide="download" class="w-4 h-4 text-indigo-600"></i>
             <span>Export CSV</span>
           </button>
-          <button onclick="seedDatabase()" class="neo-btn neo-btn-cyan px-3.5 sm:px-4 py-2 text-xs sm:text-sm" title="Reset sample test grievances">
+          <button type="button" onclick="seedDatabase()" class="neo-btn neo-btn-cyan px-3.5 sm:px-4 py-2 text-xs sm:text-sm" title="Reset sample test grievances">
             <i data-lucide="database-zap" class="w-4 h-4 text-slate-950"></i>
             <span>Demo Data Seeder</span>
           </button>
@@ -275,7 +275,7 @@
             <span class="neo-badge bg-indigo-50 text-indigo-800">Live Telemetry</span>
           </div>
           <div class="h-64 sm:h-72 relative">
-            <canvas id="chart-departments"></canvas>
+            <canvas id="chart-departments" role="img" aria-label="Active grievances by municipal department"></canvas>
           </div>
         </div>
 
@@ -288,7 +288,7 @@
             </div>
           </div>
           <div class="h-64 sm:h-72 relative flex items-center justify-center">
-            <canvas id="chart-categories"></canvas>
+            <canvas id="chart-categories" role="img" aria-label="Grievance counts by category"></canvas>
           </div>
         </div>
 
@@ -361,14 +361,14 @@
           <div class="flex flex-wrap items-center gap-2.5">
             <div class="relative">
               <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input id="tbl-search" oninput="debounceFilter()" type="text" placeholder="Search ticket, road, area..." class="pl-9 pr-3 py-2 text-xs sm:text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm w-44 sm:w-60 bg-white" />
+              <input id="tbl-search" aria-label="Search grievances by ticket, road, or area" oninput="debounceFilter()" type="text" placeholder="Search ticket, road, area..." class="pl-9 pr-3 py-2 text-xs sm:text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-neo-sm w-44 sm:w-60 bg-white" />
             </div>
 
-            <select id="tbl-filter-dept" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
+            <select id="tbl-filter-dept" aria-label="Filter by department" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
               <option value="">All Departments</option>
             </select>
 
-            <select id="tbl-filter-status" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
+            <select id="tbl-filter-status" aria-label="Filter by status" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
               <option value="">All Statuses</option>
               <option value="Reported">Reported</option>
               <option value="Dispatched">Dispatched</option>
@@ -376,7 +376,7 @@
               <option value="Resolved">Resolved</option>
             </select>
 
-            <select id="tbl-filter-priority" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
+            <select id="tbl-filter-priority" aria-label="Filter by urgency" onchange="renderDashboard()" class="text-xs sm:text-sm font-bold py-2 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm focus:outline-none bg-white">
               <option value="">All Urgencies</option>
               <option value="Critical">Critical</option>
               <option value="High">High</option>
@@ -435,7 +435,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         
         <div class="lg:col-span-8 neo-card p-3 sm:p-4 bg-white">
-          <div id="city-map" class="w-full h-[520px] sm:h-[620px] rounded-xl"></div>
+          <div id="city-map" role="application" aria-label="Interactive civic grievance map. Use the map controls to zoom and explore reported issues." tabindex="0" class="w-full h-[520px] sm:h-[620px] rounded-xl"></div>
         </div>
 
         <div class="lg:col-span-4 space-y-6">
@@ -545,7 +545,7 @@
               <div>
                 <label class="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Attach Photo Evidence (Optional)</label>
                 <div class="mt-1 flex justify-center px-6 pt-5 pb-5 border-2 border-dashed border-slate-900 rounded-2xl hover:bg-indigo-50/50 transition cursor-pointer relative bg-slate-50">
-                  <input id="form-img" type="file" accept="image/*" onchange="previewImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <input id="form-img" aria-label="Attach photo evidence" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <div id="dropzone-placeholder" class="space-y-2 text-center">
                     <i data-lucide="image-plus" class="mx-auto h-9 w-9 text-slate-700"></i>
                     <div class="text-xs sm:text-sm font-bold text-slate-800 justify-center">
@@ -668,8 +668,8 @@
 
         <!-- Search Ticket ID Direct -->
         <div class="flex items-center space-x-2">
-          <input id="direct-ticket-input" type="text" placeholder="Ticket ID (e.g. CR-1002)" class="px-4 py-2.5 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono shadow-neo-sm bg-white" />
-          <button onclick="lookupDirectTicket()" class="neo-btn neo-btn-primary px-4 py-2.5 text-sm">
+          <input id="direct-ticket-input" aria-label="Ticket ID to look up" type="text" placeholder="Ticket ID (e.g. CR-1002)" class="px-4 py-2.5 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono shadow-neo-sm bg-white" />
+          <button type="button" onclick="lookupDirectTicket()" class="neo-btn neo-btn-primary px-4 py-2.5 text-sm">
             Track
           </button>
         </div>
@@ -680,14 +680,14 @@
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative">
             <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <input id="public-search" oninput="debouncePublicFilter()" type="text" placeholder="Search keywords..." class="pl-9 pr-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm w-48 sm:w-64 bg-white" />
+            <input id="public-search" aria-label="Search public grievances" oninput="debouncePublicFilter()" type="text" placeholder="Search keywords..." class="pl-9 pr-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm w-48 sm:w-64 bg-white" />
           </div>
 
-          <select id="public-filter-ward" onchange="renderPublicFeed()" class="text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none">
+          <select id="public-filter-ward" aria-label="Filter by municipal ward" onchange="renderPublicFeed()" class="text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none">
             <option value="">All Municipal Wards</option>
           </select>
 
-          <select id="public-filter-status" onchange="renderPublicFeed()" class="text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none">
+          <select id="public-filter-status" aria-label="Filter by grievance status" onchange="renderPublicFeed()" class="text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none">
             <option value="">All Statuses</option>
             <option value="Reported">Reported</option>
             <option value="Dispatched">Dispatched</option>
@@ -698,7 +698,7 @@
 
         <div class="flex items-center space-x-2.5 text-xs sm:text-sm font-bold">
           <span class="text-slate-500">Sort by:</span>
-          <select id="public-sort" onchange="renderPublicFeed()" class="py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none font-bold">
+          <select id="public-sort" aria-label="Sort grievances" onchange="renderPublicFeed()" class="py-2.5 px-3 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-white focus:outline-none font-bold">
             <option value="newest">Most Recent</option>
             <option value="upvotes">Most Endorsed (+1)</option>
             <option value="urgency">Highest Severity</option>
@@ -716,24 +716,24 @@
   </main>
 
   <!-- ================= FLOATING MOBILE BOTTOM NAVIGATION DOCK ================= -->
-  <div class="md:hidden mobile-nav-dock flex items-center justify-around">
-    <button onclick="switchTab('dashboard')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-cyan-400">
+  <nav aria-label="Mobile navigation" class="md:hidden mobile-nav-dock flex items-center justify-around">
+    <button type="button" data-tab="dashboard" aria-controls="view-dashboard" aria-current="page" onclick="switchTab('dashboard')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-cyan-400">
       <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5 text-cyan-400"></i>
       <span>Command</span>
     </button>
-    <button onclick="switchTab('map')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-emerald-400">
+    <button type="button" data-tab="map" aria-controls="view-map" onclick="switchTab('map')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-emerald-400">
       <i data-lucide="map-pin" class="w-5 h-5 mb-0.5 text-emerald-400"></i>
       <span>Spatial GIS</span>
     </button>
-    <button onclick="switchTab('report')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-amber-400">
+    <button type="button" data-tab="report" aria-controls="view-report" onclick="switchTab('report')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-amber-400">
       <i data-lucide="file-plus-2" class="w-5 h-5 mb-0.5 text-amber-400"></i>
       <span>File Issue</span>
     </button>
-    <button onclick="switchTab('tracker')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-indigo-400">
+    <button type="button" data-tab="tracker" aria-controls="view-tracker" onclick="switchTab('tracker')" class="flex flex-col items-center text-xs font-black text-slate-300 py-1 focus:text-indigo-400">
       <i data-lucide="list-checks" class="w-5 h-5 mb-0.5 text-indigo-400"></i>
       <span>Tracker</span>
     </button>
-  </div>
+  </nav>
 
   <!-- ================= FOOTER ================= -->
   <footer class="bg-[#090e1a] text-slate-400 text-xs sm:text-sm py-12 border-t-2 border-slate-900 mt-16">
@@ -754,7 +754,7 @@
   </footer>
 
   <!-- ================= MODAL: ISSUE DETAILS DOSSIER ================= -->
-  <div id="modal-details" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="modal-details" role="dialog" aria-modal="true" aria-labelledby="mdl-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border-2 border-slate-900 shadow-neo-xl">
       
       <!-- Modal Header -->
@@ -768,7 +768,7 @@
           <h2 id="mdl-title" class="text-lg sm:text-xl font-black text-slate-950 mt-2">Issue Title</h2>
           <p id="mdl-location" class="text-xs sm:text-sm text-slate-500 font-bold mt-0.5">Location</p>
         </div>
-        <button onclick="closeDetailsModal()" class="neo-btn neo-btn-white p-2">
+        <button type="button" aria-label="Close grievance details" onclick="closeDetailsModal()" class="neo-btn neo-btn-white p-2">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -852,8 +852,8 @@
         <div class="pt-4 border-t-2 border-slate-900">
           <h4 class="text-xs font-black uppercase tracking-wider text-slate-800 mb-2">Add Public Observation / Community Feedback</h4>
           <div class="flex gap-2">
-            <input id="comment-input" type="text" placeholder="e.g. Work crew is currently on site..." class="flex-1 px-4 py-2.5 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm bg-slate-50" />
-            <button onclick="postCitizenComment()" class="neo-btn neo-btn-primary px-5 py-2.5 text-xs sm:text-sm">
+            <input id="comment-input" aria-label="Public observation" type="text" maxlength="1000" placeholder="e.g. Work crew is currently on site..." class="flex-1 px-4 py-2.5 text-sm font-bold rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm bg-slate-50" />
+            <button type="button" onclick="postCitizenComment()" class="neo-btn neo-btn-primary px-5 py-2.5 text-xs sm:text-sm">
               Post Note
             </button>
           </div>
@@ -864,21 +864,21 @@
   </div>
 
   <!-- ================= MODAL: OFFICER ACTION DRAWER (ADMIN) ================= -->
-  <div id="modal-officer-action" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="modal-officer-action" role="dialog" aria-modal="true" aria-labelledby="officer-action-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full p-6 sm:p-7 border-2 border-slate-900 shadow-neo-xl space-y-5">
       <div class="flex items-center justify-between border-b-2 border-slate-900 pb-4">
         <div>
-          <h3 class="text-base font-black text-slate-950">Officer Work Order Dispatch</h3>
+          <h3 id="officer-action-title" class="text-base font-black text-slate-950">Officer Work Order Dispatch</h3>
           <p id="adm-action-ticket" class="text-xs font-mono text-indigo-700 font-black">Ticket: CR-XXXX</p>
         </div>
-        <button onclick="closeOfficerActionModal()" class="neo-btn neo-btn-white p-2">
+        <button type="button" aria-label="Close officer work order" onclick="closeOfficerActionModal()" class="neo-btn neo-btn-white p-2">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
       <div class="space-y-3.5 text-xs sm:text-sm font-bold">
         <div>
-          <label class="block font-black text-slate-800 mb-1">Update Status</label>
+          <label for="adm-set-status" class="block font-black text-slate-800 mb-1">Update Status</label>
           <select id="adm-set-status" class="w-full p-2.5 rounded-xl border-2 border-slate-900 bg-white shadow-neo-sm">
             <option value="Reported">Reported</option>
             <option value="Dispatched">Dispatched</option>
@@ -888,14 +888,14 @@
         </div>
 
         <div>
-          <label class="block font-black text-slate-800 mb-1">Reassign Department</label>
+          <label for="adm-set-dept" class="block font-black text-slate-800 mb-1">Reassign Department</label>
           <select id="adm-set-dept" class="w-full p-2.5 rounded-xl border-2 border-slate-900 bg-white shadow-neo-sm">
             <!-- Dynamic Depts -->
           </select>
         </div>
 
         <div>
-          <label class="block font-black text-slate-800 mb-1">Priority Override</label>
+          <label for="adm-set-priority" class="block font-black text-slate-800 mb-1">Priority Override</label>
           <select id="adm-set-priority" class="w-full p-2.5 rounded-xl border-2 border-slate-900 bg-white shadow-neo-sm">
             <option value="Critical">Critical (24h SLA)</option>
             <option value="High">High (48h SLA)</option>
@@ -905,18 +905,18 @@
         </div>
 
         <div>
-          <label class="block font-black text-slate-800 mb-1">Assign Field Squad / Engineer</label>
-          <input id="adm-set-officer" placeholder="e.g. Er. Rajesh Varma (Field Lead)" class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50" />
+          <label for="adm-set-officer" class="block font-black text-slate-800 mb-1">Assign Field Squad / Engineer</label>
+          <input id="adm-set-officer" maxlength="120" placeholder="e.g. Er. Rajesh Varma (Field Lead)" class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50" />
         </div>
 
         <div>
-          <label class="block font-black text-slate-800 mb-1">Public Citizen Progress Note</label>
-          <textarea id="adm-set-note" rows="2" placeholder="Citizen-visible update regarding repair progress..." class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50"></textarea>
+          <label for="adm-set-note" class="block font-black text-slate-800 mb-1">Public Citizen Progress Note</label>
+          <textarea id="adm-set-note" rows="2" maxlength="1000" placeholder="Citizen-visible update regarding repair progress..." class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50"></textarea>
         </div>
 
         <div>
-          <label class="block font-black text-slate-800 mb-1">Internal Officer Confidential Note</label>
-          <input id="adm-set-internal" placeholder="Logistics, vendor procurement or police coordination note..." class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50" />
+          <label for="adm-set-internal" class="block font-black text-slate-800 mb-1">Internal Officer Confidential Note</label>
+          <input id="adm-set-internal" maxlength="1000" placeholder="Logistics, vendor procurement or police coordination note..." class="w-full p-2.5 rounded-xl border-2 border-slate-900 shadow-neo-sm bg-slate-50" />
         </div>
       </div>
 
@@ -937,22 +937,22 @@
   </div>
 
   <!-- ================= MODAL: OFFICER LOGIN ================= -->
-  <div id="modal-login" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-login" role="dialog" aria-modal="true" aria-labelledby="officer-login-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-7 border-2 border-slate-900 shadow-neo-xl space-y-5">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-2xl bg-indigo-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-neo-sm">
           <i data-lucide="shield-check" class="w-5 h-5"></i>
         </div>
         <div>
-          <h3 class="text-base font-black text-slate-950">Officer Authentication</h3>
+          <h3 id="officer-login-title" class="text-base font-black text-slate-950">Officer Authentication</h3>
           <p class="text-xs text-slate-500 font-bold">Enter Municipal Security PIN</p>
         </div>
       </div>
 
       <div>
         <label for="admin-pin-input" class="block text-xs font-black text-slate-800 mb-1.5">Security PIN</label>
-        <input id="admin-pin-input" type="password" placeholder="Defaults to admin123" class="w-full px-4 py-3 text-sm font-black rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm font-mono bg-slate-50" />
-        <p id="login-error-msg" class="text-xs text-rose-600 font-black mt-1.5 hidden">Incorrect PIN. Please re-enter.</p>
+        <input id="admin-pin-input" type="password" autocomplete="current-password" aria-describedby="login-error-msg" class="w-full px-4 py-3 text-sm font-black rounded-xl border-2 border-slate-900 focus:outline-none shadow-neo-sm font-mono bg-slate-50" />
+        <p id="login-error-msg" role="alert" class="text-xs text-rose-600 font-black mt-1.5 hidden">Incorrect PIN. Please re-enter.</p>
       </div>
 
       <div class="flex space-x-2.5 pt-2">
@@ -963,7 +963,7 @@
   </div>
 
   <!-- ================= TOAST CONTAINER ================= -->
-  <div id="toast-container"></div>
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
   <!-- Scripts -->
   <script src="app.js"></script>
