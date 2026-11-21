@@ -3,6 +3,8 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
 [![AI Engine](https://img.shields.io/badge/AI-Google%20Gemini%202.5%20Flash-blue.svg)](https://aistudio.google.com/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSuriyaPrakash-sp%2FPromptWars)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SuriyaPrakash-sp/PromptWars)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Architecture](https://img.shields.io/badge/Architecture-Zero--Dependency%20Native%20Engine-orange.svg)]()
 
